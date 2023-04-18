@@ -8,7 +8,6 @@ import numpy as np
 import math
 import random
 
-from avalanche.benchmarks.generators import nc_benchmark, ni_benchmark
 
 def speech_commands_collate(batch):
     tensors, targets, t_labels = [], [], []
@@ -20,7 +19,7 @@ def speech_commands_collate(batch):
     tensors = torch.nn.utils.rnn.pad_sequence(
         tensors, batch_first=True, padding_value=0.0
     )
-    if len(tensors.size()) == 2:  # no MFCC, add feature dimension
+    if len(tensors.size()) == 2:  # add feature dimension
         tensors = tensors.unsqueeze(-1)
     targets = torch.stack(targets)
     t_labels = torch.stack(t_labels)
