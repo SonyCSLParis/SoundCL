@@ -1,0 +1,8 @@
+avalanche-lib==0.3.1
+numpy==1.22.3
+sacred==0.8.4
+torch==1.13.1
+matplotlib==3.7.1
+pandas==2.0.0
+tensorflow==2.11.0
+seaborn
