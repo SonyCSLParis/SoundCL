@@ -10,6 +10,14 @@ import random
 
 
 def speech_commands_collate(batch):
+    """Collate function for setting up the dataloader
+
+    Args:
+        batch (int): batch size
+
+    Returns:
+        batch: return batched data in the form ; audio_tensor,target,task_label
+    """
     tensors, targets, t_labels = [], [], []
     for waveform, label, rate, sid, uid, t_label in batch:
         tensors += [waveform]
@@ -23,7 +31,7 @@ def speech_commands_collate(batch):
         tensors = tensors.unsqueeze(-1)
     targets = torch.stack(targets)
     t_labels = torch.stack(t_labels)
-    return tensors, targets, t_labels
+    return tensors.permute(0,2,1), targets, t_labels# Fix for convolution
 
 
 class SpeechCommandsData(SPEECHCOMMANDS):
@@ -76,16 +84,52 @@ class SpeechCommandsData(SPEECHCOMMANDS):
 class Audio_Dataset():
     def __init__(self):
         
-        self.train_transformation = nn.Sequential(self.add_white_noise(),self.mfcc_transform(),self.Spec_Aug())
+        #self.train_transformation = nn.Sequential(self.add_white_noise,self.mfcc_transform,self.Spec_Aug)# doesnt work
         self.train_target_transformation = None
-        
-        self.test_transformation = nn.Sequential(self.mfcc_transform())
+        #
+        #self.test_transformation = nn.Sequential(self.mfcc_transform)
         self.test_target_transformation = None
-
-        self.tranform_groups = {
-            'train':(self.train_transformation,self.train_target_transformation),
-            'eval':(self.test_transformation,self.test_target_transformation)
-        }
+        self.labels_names = [
+            "backward",
+            "bed",
+            "bird",
+            "cat",
+            "dog",
+            "down",
+            "eight",
+            "five",
+            "follow",
+            "forward",
+            "four",
+            "go",
+            "happy",
+            "house",
+            "learn",
+            "left",
+            "marvin",
+            "nine",
+            "no",
+            "off",
+            "on",
+            "one",
+            "right",
+            "seven",
+            "sheila",
+            "six",
+            "stop",
+            "three",
+            "tree",
+            "two",
+            "up",
+            "visual",
+            "wow",
+            "yes",
+            "zero",
+        ]
+        #self.tranform_groups = {
+        #    'train':(self.train_transformation,self.train_target_transformation),
+        #    'eval':(self.test_transformation,self.test_target_transformation)
+        #}
 
     def Spec_Aug(tensor,time_mask=50,freq_mask=5,prob=0.8):
         time_masking = T.TimeMasking(time_mask_param=time_mask,p=prob)
@@ -115,7 +159,7 @@ class Audio_Dataset():
         return (noise/scale+audio_tensor)/2
 
     def SpeechCommands(
-        root=default_dataset_location(""),
+        root=default_dataset_location("speechcommands"),
         url="speech_commands_v0.02",
         download=True,
         subset=None,
@@ -127,8 +171,9 @@ class Audio_Dataset():
         download: automatically download the dataset, if not present
         subset: one of 'training', 'validation', 'testing'
         """
+        
         dataset = SpeechCommandsData(
-            root=root,
+            root='../dataset/',
             download=download,
             subset=subset,
             url=url,
@@ -141,7 +186,15 @@ class Audio_Dataset():
         )
 
     def __call__(self,train):
+        """Function call to AudioDataset
+
+        Args:
+            train (bool): True for training subset and False for testing
+
+        Returns:
+            ClassificationDataset: avalanche comatible speech command dataset
+        """
         if train:
-            return self.SpeechCommands(subset='training',transforms=self.tranform_groups)
+            return self.SpeechCommands(subset='training')#,transforms=self.tranform_groups)
         else:
-            return self.SpeechCommands(subset='testing',transforms=self.tranform_groups)
+            return self.SpeechCommands(subset='testing')#,transforms=self.tranform_groups)
