@@ -1,3 +1,4 @@
 tb_data/
 dataset/
+src/__pycache__/
 log.txt
