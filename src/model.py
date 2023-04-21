@@ -3,10 +3,39 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class M5(nn.Module):
-    """Basic M5 model from the paper https://arxiv.org/pdf/1610.00087.pdf (Only for testing)
 
-    """
     def __init__(self, n_input=1, n_output=35, stride=16, n_channel=32):
+        """Basic M5 model from the paper https://arxiv.org/pdf/1610.00087.pdf (Only for testing)
+
+        Args:
+            n_input (int, optional): Number of inputs. Defaults to 1.
+            n_output (int, optional): Number of outputs. Defaults to 35.
+            stride (int, optional): Convolution stride. Defaults to 16.
+            n_channel (int, optional): Output channels of convolution layers. Defaults to 32.
+        Summary:
+            =================================================================
+            Layer (type:depth-idx)                   Param #
+            =================================================================
+            M5                                       --
+            ├─Conv1d: 1-1                            5,635
+            ├─BatchNorm1d: 1-2                       70
+            ├─MaxPool1d: 1-3                         --
+            ├─Conv1d: 1-4                            3,710
+            ├─BatchNorm1d: 1-5                       70
+            ├─MaxPool1d: 1-6                         --
+            ├─Conv1d: 1-7                            7,420
+            ├─BatchNorm1d: 1-8                       140
+            ├─MaxPool1d: 1-9                         --
+            ├─Conv1d: 1-10                           14,770
+            ├─BatchNorm1d: 1-11                      140
+            ├─MaxPool1d: 1-12                        --
+            ├─Linear: 1-13                           2,485
+            =================================================================
+            Total params: 34,440
+            Trainable params: 34,440
+            Non-trainable params: 0
+            =================================================================
+        """
         super().__init__()
         self.conv1 = nn.Conv1d(n_input, n_channel, kernel_size=160, stride=stride)
         self.bn1 = nn.BatchNorm1d(n_channel)
