@@ -11,13 +11,15 @@ class EncDecBaseModel(nn.Module):
 
     def __init__(self, num_mels, 
                  final_filter,
-                 num_classes):
+                 num_classes,
+                 input_length):
         """Encoder decoder model for MatchboxNet from the paper : http://arxiv.org/abs/2004.08531
 
         Args:
             num_mels (int): number of mel features in the mfcc transform preprocessing
             final_filter (int): size of final conv filter in the encoder
             num_classes (int): number of output classes for classification
+            input_length (int): input time dimension length
         Summary:
             ===========================================================================
             Layer (type:depth-idx)                             Param #
@@ -64,11 +66,13 @@ class EncDecBaseModel(nn.Module):
         """
         super(EncDecBaseModel, self).__init__()
 
-        self.encoder = ConvASREncoder(feat_in = num_mels)
-        self.decoder = ConvASRDecoderClassification(feat_in = final_filter, num_classes= num_classes)
+        self.input_length = torch.tensor(input_length)
 
-    def forward(self, input_signal, input_signal_length):
-        encoded, encoded_len = self.encoder(audio_signal=input_signal, length=input_signal_length)
+        self.encoder = ConvASREncoder(feat_in = num_mels)
+        self.decoder = ConvASRDecoderClassification(feat_in = final_filter, num_classes= num_classes,return_logits=True)
+
+    def forward(self, input_signal):
+        encoded, encoded_len = self.encoder(audio_signal=input_signal, length=self.input_length)
         logits = self.decoder(encoder_output=encoded)
         return logits
 
@@ -143,7 +147,7 @@ class M5(nn.Module):
 if __name__=='__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model = EncDecBaseModel(num_mels= 64, final_filter = 128, num_classes=35)
+    model = EncDecBaseModel(num_mels= 64, final_filter = 128, num_classes=35,input_length=1601)
     summary(model=model,device=device)
     model.to(device=device)
 
@@ -152,6 +156,6 @@ if __name__=='__main__':
     label=torch.Tensor(98)
     label=label.to(device)
     
-    test_output = model(test_input, label)
+    test_output = model(test_input)
     
     print(test_output.size())

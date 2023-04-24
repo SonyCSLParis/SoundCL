@@ -31,7 +31,57 @@ def speech_commands_collate(batch):
         tensors = tensors.unsqueeze(-1)
     targets = torch.stack(targets)
     t_labels = torch.stack(t_labels)
-    return tensors.permute(0,2,1), targets, t_labels# Fix for convolution
+    return tensors, targets, t_labels# Fix for convolution.permute(0,2,1)
+
+def spec_aug(tensor,time_mask=50,freq_mask=5,prob=0.8):
+    time_masking = T.TimeMasking(time_mask_param=time_mask,p=prob)
+    freq_masking = T.FrequencyMasking(freq_mask_param=freq_mask)
+    return freq_masking(freq_masking(time_masking(time_masking(tensor))))
+    
+def mfcc_transform(audio_tensor,sample_rate,n_fft=512,n_mfcc=64,hop_length=10,mel_scale='htk'):
+    transform = T.MFCC(
+        sample_rate=sample_rate,
+        n_mfcc=n_mfcc,
+        melkwargs={
+            "hop_length": hop_length,
+            "mel_scale": mel_scale,
+            "n_fft": n_fft,
+        },
+    )
+    return transform(audio_tensor.to(dtype=torch.float32))
+    
+def add_white_noise(audio_tensor,min_snr_db=20,max_snr_db=90,STD_n=0.5,norm=2):
+    noise=np.random.normal(0, STD_n, audio_tensor.shape)
+    noise_power = torch.from_numpy(noise).norm(p=norm)
+    audio_power = audio_tensor.norm(p=norm)
+
+    snr_db = random.randint(min_snr_db,max_snr_db)
+    snr = math.exp(snr_db / 10)
+    scale = snr * noise_power / audio_power
+
+    return (noise/scale+audio_tensor)/2
+
+class AddWhiteNoise(nn.Module):
+    def __init__(self):
+        super().__init__()
+    def forward(self,x):
+        #print("ONE",x.shape)
+        return(add_white_noise(audio_tensor=x))
+    
+class MfccTransform(nn.Module):
+    def __init__(self,sample_rate):
+        super().__init__()
+        self.sample_rate=sample_rate
+    def forward(self,x):
+        #print("TWO",x.shape)
+        return mfcc_transform(audio_tensor=x,sample_rate=self.sample_rate)
+
+class SpecAugment(nn.Module):
+    def __init__(self):
+        super().__init__()
+    def forward(self,x):
+        #print(x.shape)
+        return spec_aug(tensor=x)
 
 
 class SpeechCommandsData(SPEECHCOMMANDS):
@@ -84,10 +134,10 @@ class SpeechCommandsData(SPEECHCOMMANDS):
 class Audio_Dataset():
     def __init__(self):
         
-        #self.train_transformation = nn.Sequential(self.add_white_noise,self.mfcc_transform,self.Spec_Aug)# doesnt work
+        self.train_transformation = nn.Sequential(AddWhiteNoise(),MfccTransform(sample_rate=16000))#,SpecAugment())
         self.train_target_transformation = None
-        #
-        #self.test_transformation = nn.Sequential(self.mfcc_transform)
+        
+        self.test_transformation = nn.Sequential(MfccTransform(sample_rate=16000))
         self.test_target_transformation = None
         self.labels_names = [
             "backward",
@@ -126,37 +176,10 @@ class Audio_Dataset():
             "yes",
             "zero",
         ]
-        #self.tranform_groups = {
-        #    'train':(self.train_transformation,self.train_target_transformation),
-        #    'eval':(self.test_transformation,self.test_target_transformation)
-        #}
-
-    def Spec_Aug(tensor,time_mask=50,freq_mask=5,prob=0.8):
-        time_masking = T.TimeMasking(time_mask_param=time_mask,p=prob)
-        freq_masking = T.FrequencyMasking(freq_mask_param=freq_mask)
-        return freq_masking(freq_masking(time_masking(time_masking(tensor))))
-    
-    def mfcc_transform(audio_tensor,sample_rate,n_mfcc=64,hop_length=10,mel_scale='htk'):
-        transform = T.MFCC(
-            sample_rate=sample_rate,
-            n_mfcc=n_mfcc,
-            melkwargs={
-                "hop_length": hop_length,
-                "mel_scale": mel_scale,
-            },
-        )
-        return transform(audio_tensor.to(dtype=torch.float32))
-    
-    def add_white_noise(audio_tensor,min_snr_db=20,max_snr_db=90,STD_n=0.5,norm=2):
-        noise=np.random.normal(0, STD_n, audio_tensor.shape)
-        noise_power = torch.from_numpy(noise).norm(p=norm)
-        audio_power = audio_tensor.norm(p=norm)
-
-        snr_db = random.randint(min_snr_db,max_snr_db)
-        snr = math.exp(snr_db / 10)
-        scale = snr * noise_power / audio_power
-
-        return (noise/scale+audio_tensor)/2
+        self.tranform_groups = {
+            'train':(self.train_transformation,self.train_target_transformation),
+            'eval':(self.test_transformation,self.test_target_transformation)
+        }
 
     def SpeechCommands(
         root=default_dataset_location("speechcommands"),
@@ -195,6 +218,6 @@ class Audio_Dataset():
             ClassificationDataset: avalanche comatible speech command dataset
         """
         if train:
-            return self.SpeechCommands(subset='training')#,transforms=self.tranform_groups)
+            return self.SpeechCommands(subset='training',transforms=self.tranform_groups)
         else:
-            return self.SpeechCommands(subset='testing')#,transforms=self.tranform_groups)
+            return self.SpeechCommands(subset='testing',transforms=self.tranform_groups)
