@@ -1,4 +1,5 @@
 tb_data/
 dataset/
 src/__pycache__/
+src/matchbox/__pycache__/
 log.txt
