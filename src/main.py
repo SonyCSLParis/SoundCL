@@ -34,7 +34,7 @@ import matplotlib.pyplot as plt
 
 
 #Setting up the experiment
-ex=Experiment('Matchbox Joint')
+ex=Experiment('h5py')
 ex.observers.append(MongoObserver(db_name='Continual-learning'))
 
 @ex.config
@@ -75,8 +75,8 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
     #Import dataset
     DATASET=Audio_Dataset()
 
-    command_train=DATASET(train=True)
-    command_test =DATASET(train=False)
+    command_train=DATASET(train=True,pre_process=True)
+    command_test =DATASET(train=False,pre_process=True)
     
     # Create Scenario
     scenario = nc_benchmark(command_train, command_test, n_experiences=7, shuffle=True, seed=_seed,task_labels=False)

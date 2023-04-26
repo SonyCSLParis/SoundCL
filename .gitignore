@@ -1,5 +1,6 @@
 tb_data/
 dataset/
+dataset_cache/
 src/__pycache__/
 src/matchbox/__pycache__/
 log.txt
