@@ -1,6 +1,16 @@
 # Continual learning for Speech Command
 
-This repository creates a basis upon wich one can try out continual learning strategies on the google Speech Command Dataset.
+This repository creates a basis upon wich one can try out continual learning strategies on the [Google Speech Command Dataset](http://arxiv.org/abs/1804.03209).
+
+## The Dataset
+
+The [Google Speech Command Dataset](http://arxiv.org/abs/1804.03209) is composed of 35 classes of 1 second sound utturences. This dataset regroups words usefull for robotics commands, and other words such as numbers and names.
+
+## The framework
+
+This implementation is based on [Avalanche](https://arxiv.org/abs/2104.00405) a python library based on pytorch adapted to continual learning. This enables us to try out different continual learning strategies and models easily.
+
+More information on this library can be found in their [documentation](https://avalanche.continualai.org/) and [API](https://avalanche-api.continualai.org/en/v0.3.1/).
 
 ## Logging
 
