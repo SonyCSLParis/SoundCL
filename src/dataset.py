@@ -11,6 +11,7 @@ import random
 import h5py
 import os
 from tqdm import tqdm
+import logging
 
 
 def speech_commands_collate(batch):
@@ -46,7 +47,7 @@ def speech_commands_collate(batch):
 def preprocess_and_save_dataset(dataset, save_path,transformation):
     if os.path.isfile(save_path):
         # The preprocessed dataset already exists, no need to preprocess again
-        print("The preprocessed dataset already exists, using cache")
+        logging.info("The preprocessed dataset already exists, using cache")
         return
     
     # Create a new HDF5 file to store the preprocessed data
@@ -218,14 +219,12 @@ class Audio_Dataset():
                 cached_dataset=CachedAudio(subset=subset)
                 labels = [datapoint[1] for datapoint in cached_dataset]
                 
-            
             elif subset=='testing':
                 
                 self.preprocessed_test_path = os.path.join('../dataset_cache/', "preprocessed_test.h5")
                 preprocess_and_save_dataset(dataset=dataset, save_path=self.preprocessed_test_path,transformation=self.test_transformation)
                 cached_dataset=CachedAudio(subset=subset)
                 labels = [datapoint[1] for datapoint in cached_dataset]
-                print(len(labels))
 
             else:
                 raise ValueError("Unknown data subset. Choose from : training or testing.")
