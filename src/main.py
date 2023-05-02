@@ -34,7 +34,7 @@ import matplotlib.pyplot as plt
 
 
 #Setting up the experiment
-ex=Experiment('Gen Replay Macth 5')
+ex=Experiment('Joint Save')
 ex.observers.append(MongoObserver(db_name='Continual-learning'))
 
 @ex.config
@@ -42,16 +42,16 @@ def cfg():
     """Config function for efficient config saving in sacred
     """
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    opt_type='sgd'
-    learning_rate=0.1
+    opt_type='adam'
+    learning_rate=0.001
     train_batch_size=256
     eval_batch_size=128
-    train_epochs=5
+    train_epochs=8
     momentum=0.9
     seed=2
     PolynomialHoldDecayAnnealing_schedule=False
     tags = ["Regularization","MatchboxNet","M5","Joint","Naive","Replay","Combined","Architectural"]#to choose from in Omniboard
-    save_model=False
+    save_model=True
 
 
 
@@ -116,7 +116,7 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
     if opt_type == 'sgd':
         optimizer=SGD(model.parameters(), lr=learning_rate, momentum=momentum)
     elif opt_type == 'adam':
-        optimizer=Adam(model.parameters(), lr=learning_rate, momentum=momentum)
+        optimizer=Adam(model.parameters(), lr=learning_rate)
     else:
         logging.warning("This type of optimizer is not implemented, defaulting to SGD")
         optimizer=SGD(model.parameters(), lr=learning_rate, momentum=momentum)
@@ -127,14 +127,15 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
     #Initialise plugin list.
     #NB: we can add multiple plugins to the same strategy
 
-    plugin_list=[GenerativeReplayPlugin()]    
+    plugin_list=[]    
                         # List of used plugins:
                             #LRSchedulerPlugin(PolynomialHoldDecayAnnealing(optimizer=optimizer,power=2.0,max_steps=13260,min_lr=0.001,last_epoch=-1))]
                             #ReplayPlugin(mem_size=50)
                             #SynapticIntelligencePlugin
+                            #GenerativeReplayPlugin()
 
 
-    cl_strategy = SupervisedTemplate(
+    cl_strategy = JointTraining(
                         model, optimizer,CrossEntropyLoss(), 
                         train_mb_size=train_batch_size, eval_mb_size=eval_batch_size,
                         device=device,
@@ -180,9 +181,9 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
 
     ## Save the model as an artifact
     if(save_model):
-        torch.save(model,'model.pt', './')
-        _run.add_artifact('./model.pt')
-        os.remove('./model.pt')
+        torch.save(model.state_dict(),os.path.join('../models/','model.pt'))
+        _run.add_artifact('../models/model.pt')
+        os.remove('../models/model.pt')
 
     ## The save process in tensorboard in multithreaded, we add this sleep to make sure that the file was saved before accessing it
     time.sleep(120) 
