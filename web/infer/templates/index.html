@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> Speech Inferance</title>
+    <link rel="icon" href="{{url_for('static',filename='favicon.ico')}}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        h1 {
+            margin-top: 50px;
+        }
+        p {
+            text-align: center; 
+            margin-top: 50px; 
+            margin-left: 20%; 
+            margin-right: 20%;
+            margin-bottom: 50px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        .button {
+            margin-top: 20px;
+        }
+        .dropdown-container {
+            margin-top: 20px;
+        }
+        .audio-player {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .column-list {
+            display: flex;
+            flex-wrap: wrap;
+            list-style: none;
+            padding: 0;
+            margin-left: 10%;
+            margin-right: 10%;
+            margin-bottom: 50;
+
+        }
+        .column-list li {
+            width: 33.33%; /* Adjust the width based on the number of columns */
+            box-sizing: border-box;
+        }
+        #prediction{
+            color: #28a745;
+            font-weight: bold;
+        }
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Sound-CSL infer</h1>
+    <p>
+        Welcome to the Sound-CL Continual Learning Model Testing Website, developed by the CSL Sustainability Team!
+
+        The website is designed to provide our Continual Learning (CL) model for speech commands. Through this website, you can actively participate in evaluating the performance of our model by recording yourself and witnessing its real-time analysis.
+
+        Your contributions to this testing process are invaluable to us. By recording and providing feedback on your experiences, you help us refine and enhance the performance of our CL model. Your input will aid us in fine-tuning the model's ability to understand a diverse range of speech commands and improve its overall functionality.
+
+        We highly encourage you to explore the various commands and test the model in different environments.
+
+        Thank you !
+    </p>
+        
+    <div>
+        <label for="wordClass">Those are the words that the model can classify:</label>
+        <ul class="column-list">
+            {% for word in word_list %}
+            <li>{{ word }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <button id="startRecording" style="background-color: #28a745;">Start recording</button>
+    
+    <div class="audio-player">
+        <audio id="recordedAudio" controls  style="margin-top: 10px;"></audio>
+    </div>
+    <button id="submitRecording" disabled>Infer</button>
+    </div>
+    <p> The predicted word is: <span id="prediction"></span> </p>
+    <div id="commentSection">
+        <h3>We would love to hear your feedback:</h3>
+        <textarea id="commentText" rows="4" cols="50"></textarea>
+    </div>
+</body>
+<script>
+    navigator
+        .mediaDevices
+        .getUserMedia({audio: { channelCount: 1 }})
+        .then(stream => { handlerFunction(stream) });
+
+    function handlerFunction(stream) {        
+        rec = new MediaRecorder(stream);
+        rec.ondataavailable = e => {
+            audioChunks.push(e.data);
+            if (rec.state == "inactive") {
+                let blob = new Blob(audioChunks, {type: 'audio/wav'});
+                recordedAudio.src = URL.createObjectURL(blob);
+                recordedAudio.controls = true;
+                
+                submitRecording.onclick = () => {
+                    sendData(blob);
+                };
+            }
+        }
+    }
+
+    function sendData(data) {
+        var form = new FormData();
+        form.append('file', data, 'data.wav');
+        form.append('title', 'data.wav');
+        //Chrome inspector shows that the post data includes a file and a title.
+        $.ajax({
+            type: 'POST',
+            url: '/infer',
+            data: form,
+            cache: false,
+            processData: false,
+            contentType: false
+        }).done(function(data) {
+            console.log(data);
+            $('#prediction').text(data);
+        });
+        
+    }
+
+    startRecording.onclick = e => {
+        console.log('Recording are started..');
+        startRecording.disabled = true;
+        audioChunks = [];
+        startRecording.style.backgroundColor = "#dc3545";
+        rec.start();
+
+        setTimeout(() => {
+            rec.stop();
+            console.log("Recording are stopped.");
+            startRecording.style.backgroundColor = "#28a745";
+        }, 1000);
+        startRecording.disabled = false;
+        submitRecording.disabled = false;
+    };
+
+
+</script>
+</html>

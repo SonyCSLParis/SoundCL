@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSL Speech Recorder</title>
+    <link rel="icon" href="{{url_for('static',filename='favicon.ico')}}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 50px;
+        }
+
+        p {
+            text-align: center; 
+            margin-top: 50px; 
+            margin-left: 20%; 
+            margin-right: 20%;
+            margin-bottom: 50px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        .button {
+            margin-top: 20px;
+        }
+
+        .dropdown-container {
+            margin-top: 20px;
+        }
+
+        .audio-player {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        select {
+            padding: 5px;
+            font-size: 16px;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>CSL Speech Recorder</h1>
+    <p>
+        This website aims to collect data for testing our continual learning framework. We are developing a model that can learn voice commands continuously. We kindly request your assistance in recording 1-second utterances of yourself pronouncing words from the provided drop-down menu of word classes. Your cooperation is greatly appreciated.
+    </p>
+        
+    
+    <button id="startRecording" style="background-color: #28a745;">Start recording</button>
+    
+    <div class="dropdown-container">
+        <label for="wordClass">Recording Class:</label>
+        <select id="wordClass">
+            {% for word in word_list %}
+            <option value="{{ word }}">{{ word }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="audio-player">
+        <audio id="recordedAudio" controls  style="margin-top: 10px;"></audio>
+    </div>
+    <button id="submitRecording" disabled>Submit recording</button>
+</div>
+</body>
+<script>
+    navigator
+        .mediaDevices
+        .getUserMedia({audio: true})
+        .then(stream => { handlerFunction(stream) });
+
+    let selectedWordClass = "";
+
+    function handlerFunction(stream) {
+        rec = new MediaRecorder(stream);
+        rec.ondataavailable = e => {
+            audioChunks.push(e.data);
+            if (rec.state == "inactive") {
+                let blob = new Blob(audioChunks, {type: 'audio/wav'});
+                recordedAudio.src = URL.createObjectURL(blob);
+                recordedAudio.controls = true;
+                
+                submitRecording.onclick = () => {
+                    submitRecording.disabled = true;
+                    sendData(blob);
+                };
+            }
+        }
+    }
+
+    function sendData(data) {
+        var form = new FormData();
+        form.append('file', data, 'data.wav');
+        form.append('class', selectedWordClass);
+        form.append('title', 'data.wav');
+        //Chrome inspector shows that the post data includes a file and a title.
+        $.ajax({
+            type: 'POST',
+            url: '/save-record',
+            data: form,
+            cache: false,
+            processData: false,
+            contentType: false
+        }).done(function(data) {
+            console.log(data);
+            window.location.reload();
+        });
+    }
+
+    startRecording.onclick = e => {
+        console.log('Recording are started..');
+        startRecording.disabled = true;
+        audioChunks = [];
+        startRecording.style.backgroundColor = "#dc3545";
+        rec.start();
+        selectedWordClass = document.getElementById("wordClass").value;
+        console.log(selectedWordClass)
+        setTimeout(() => {
+            rec.stop();
+            console.log("Recording are stopped.");
+            startRecording.style.backgroundColor = "#28a745";
+        }, 1000);
+        startRecording.disabled = false;
+        submitRecording.disabled = false;
+    };
+
+
+</script>
+</html>
