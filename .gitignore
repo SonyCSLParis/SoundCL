@@ -1,7 +1,8 @@
 tb_data/
 dataset/
 dataset_cache/
-models/
+/models/
+src/pre_transform_analysis/models/pytorch_model.bin
 src/__pycache__/
 src/matchbox/__pycache__/
 log.txt
