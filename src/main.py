@@ -1,20 +1,20 @@
-from dataset import Audio_Dataset
+from dataset import Audio_Dataset,Scattering
 
 from avalanche.logging import InteractiveLogger, TextLogger, TensorboardLogger
-from avalanche.training.plugins import EvaluationPlugin,GenerativeReplayPlugin,LwFPlugin,ReplayPlugin,LRSchedulerPlugin,SynapticIntelligencePlugin,GDumbPlugin
+from avalanche.training.plugins import EvaluationPlugin,EarlyStoppingPlugin,GenerativeReplayPlugin,LwFPlugin,ReplayPlugin,LRSchedulerPlugin,SynapticIntelligencePlugin,GDumbPlugin,CoPEPlugin,AGEMPlugin
 from avalanche.benchmarks.generators import nc_benchmark
-from avalanche.evaluation.metrics import forgetting_metrics, accuracy_metrics,loss_metrics, timing_metrics, cpu_usage_metrics, confusion_matrix_metrics, disk_usage_metrics
+from avalanche.evaluation.metrics import forgetting_metrics, accuracy_metrics,loss_metrics, timing_metrics, cpu_usage_metrics, confusion_matrix_metrics, gpu_usage_metrics
 from avalanche.training.templates import SupervisedTemplate
 from avalanche.training import JointTraining,Naive
 
-from nemo.core.optim.lr_scheduler import PolynomialHoldDecayAnnealing
+from nemo.core.optim.lr_scheduler import PolynomialHoldDecayAnnealing,PolynomialDecayAnnealing
+from nemo.core.optim.optimizers import Novograd
 
-from torch.nn import CrossEntropyLoss
+from torch.nn import CrossEntropyLoss,NLLLoss
 from torch.optim import SGD,Adam
 import torch
 
-from models import M5
-from models import EncDecBaseModel
+import models
 
 from sacred import Experiment
 from sacred.observers import MongoObserver
@@ -32,9 +32,10 @@ import pandas as pd
 import seaborn as sn
 import matplotlib.pyplot as plt
 
+from torchinfo import summary
 
 #Setting up the experiment
-ex=Experiment('Joint Save')
+ex=Experiment('Ml commons pretraining 3')
 ex.observers.append(MongoObserver(db_name='Continual-learning'))
 
 @ex.config
@@ -42,12 +43,14 @@ def cfg():
     """Config function for efficient config saving in sacred
     """
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    opt_type='adam'
+    opt_type='novograd'
     learning_rate=0.001
-    train_batch_size=256
+    train_batch_size=128
     eval_batch_size=128
-    train_epochs=8
+    train_epochs=40
     momentum=0.9
+    w_decay=0.001
+    betas=[0.95, 0.5]
     seed=2
     PolynomialHoldDecayAnnealing_schedule=False
     tags = ["Regularization","MatchboxNet","M5","Joint","Naive","Replay","Combined","Architectural"]#to choose from in Omniboard
@@ -56,7 +59,7 @@ def cfg():
 
 
 @ex.automain
-def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epochs,momentum,PolynomialHoldDecayAnnealing_schedule,save_model,_seed,_run):
+def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epochs,momentum,w_decay,betas,save_model,_seed,_run):
     """Main function ran by sacred automain decorator
 
     Args:
@@ -78,16 +81,24 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
     #Import dataset
     DATASET=Audio_Dataset()
 
-    command_train=DATASET(train=True,pre_process=True)
-    command_test =DATASET(train=False,pre_process=True)
+    #command_train=DATASET(train=True,pre_process=False)
+    #command_test =DATASET(train=False,pre_process=False)
+    command_train=DATASET.MLCommons(sub_folder="subset2",subset='training')
+    command_test=DATASET.MLCommons(sub_folder="subset2",subset='testing')
     
     # Create Scenario
-    scenario = nc_benchmark(command_train, command_test, n_experiences=7, shuffle=True, seed=_seed,task_labels=False)
+    scenario = nc_benchmark(command_train, command_test, n_experiences=1, shuffle=True, seed=_seed,task_labels=False)
     
+    """
+    Choose Model from available models:
+        Scattering : torch.nn.Sequential( Scattering(),models.EncDecBaseModel(num_mels=50,num_classes=35,final_filter=128,input_length=1000))
+        MFCC       : models.EncDecBaseModel(num_mels=64,num_classes=35,final_filter=128,input_length=1601)
+        Basic net  : M5(n_input=1,n_channel=35)
 
-    # Create Model
-    model= EncDecBaseModel(num_mels=64,num_classes=35,final_filter=128,input_length=1601)#model = M5(n_input=1,n_channel=35)
-    
+    NB: check the pre-processing before using model
+    """
+    model=torch.nn.Sequential( Scattering(),models.EncDecBaseModel(num_mels=50,num_classes=70,final_filter=128,input_length=1000))
+
     # Setup Logging
 
     ## log to Tensorboard
@@ -106,35 +117,41 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
         forgetting_metrics(experience=True, stream=True),
         cpu_usage_metrics(experience=True),
         confusion_matrix_metrics(num_classes=scenario.n_classes, save_image=False,stream=True),
-        disk_usage_metrics(minibatch=True, epoch=True, experience=True, stream=True),
+        gpu_usage_metrics(gpu_id=0,minibatch=True, epoch=True, experience=True, stream=True),
         loggers=[interactive_logger, text_logger, tb_logger]
     )
 
-    # Create the Cl startegy
-
     # Initialize the optimizer
     if opt_type == 'sgd':
-        optimizer=SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+        optimizer=SGD(model.parameters(),lr=learning_rate, momentum=momentum,weight_decay=w_decay)
     elif opt_type == 'adam':
-        optimizer=Adam(model.parameters(), lr=learning_rate)
+        optimizer=Adam(model.parameters(),lr=learning_rate,betas=betas,weight_decay=w_decay)
+    elif opt_type == 'novograd':
+        optimizer=Novograd(model.parameters(),lr=learning_rate,betas=betas,weight_decay=w_decay)
     else:
-        logging.warning("This type of optimizer is not implemented, defaulting to SGD")
-        optimizer=SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+        logging.warning("This type of optimizer is not implemented, defaulting to ADAM")
+        optimizer=Adam(model.parameters(), lr=learning_rate,weight_decay=w_decay,betas=betas)
         
-    
-    #TODO setup the strategy in a modular way that can be easily modified through the configs of the experiment
-    
-    #Initialise plugin list.
-    #NB: we can add multiple plugins to the same strategy
+    """
+    Initialise plugin list
 
-    plugin_list=[]    
-                        # List of used plugins:
-                            #LRSchedulerPlugin(PolynomialHoldDecayAnnealing(optimizer=optimizer,power=2.0,max_steps=13260,min_lr=0.001,last_epoch=-1))]
-                            #ReplayPlugin(mem_size=50)
-                            #SynapticIntelligencePlugin
-                            #GenerativeReplayPlugin()
+    Here are some examples:
+        Lr scheduler    : LRSchedulerPlugin(PolynomialHoldDecayAnnealing(optimizer=optimizer,power=2.0,max_steps=(int(command_train.__len__()/train_batch_size)+1)*train_epochs,min_lr=0.000001,last_epoch=-1,warmup_ratio=0.05,hold_ratio=0.45))
+        Replay          : ReplayPlugin(mem_size=50)
+        Regularization  : SynapticIntelligencePlugin
+        Pseudo Replay   : GenerativeReplayPlugin()
+        Early Stopping  : 
 
+    NB: we can add multiple plugins to the same strategy
+    """
+    scheduler=torch.optim.lr_scheduler.SequentialLR(optimizer=optimizer,
+                                                    schedulers=[ torch.optim.lr_scheduler.ConstantLR(optimizer, factor=1, total_iters=int((int(command_train.__len__()/train_batch_size)+1)*train_epochs*0.5)),
+                                                                 torch.optim.lr_scheduler.PolynomialLR(optimizer, total_iters=int((int(command_train.__len__()/train_batch_size)+1)*train_epochs*0.5), power=2.0, last_epoch=- 1, verbose=False)],
+                                                    milestones=[int((int(command_train.__len__()/train_batch_size)+1)*train_epochs*0.75)])
 
+    plugin_list=[LRSchedulerPlugin(scheduler=scheduler,step_granularity="iteration",reset_lr=False)]    
+        
+    # Create the Cl startegy
     cl_strategy = JointTraining(
                         model, optimizer,CrossEntropyLoss(), 
                         train_mb_size=train_batch_size, eval_mb_size=eval_batch_size,
@@ -153,6 +170,10 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
         logging.info("Start of joint training: ")
         res = cl_strategy.train(scenario.train_stream)
         logging.info('Training completed')
+        # eval 
+        logging.info('Start of Eval')
+        results.append(cl_strategy.eval(scenario.test_stream))
+        logging.info('End of Eval')
     else:
         for experience in scenario.train_stream:
             logging.info("Start of experience: "+ str(experience.current_experience))
@@ -162,17 +183,17 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
             res = cl_strategy.train(experience)
             logging.info('Training completed')
 
-
-    logging.info('Computing accuracy on the whole test set')
-    # test also returns a dictionary which contains all the metric values
-    results.append(cl_strategy.eval(scenario.test_stream))
+            # eval 
+            logging.info('Start of Eval')
+            results.append(cl_strategy.eval(scenario.test_stream))
+            logging.info('End of Eval')
 
 
     # Logging metrics and artifacts into sacred
 
     cf_matrix=results[0]['ConfusionMatrix_Stream/eval_phase/test_stream']
-    df_cm = pd.DataFrame(cf_matrix/ np.sum(cf_matrix.numpy(), axis=1)[:, None], index = [i for i in DATASET.labels_names],
-                    columns = [i for i in DATASET.labels_names])
+    df_cm = pd.DataFrame(cf_matrix/ np.sum(cf_matrix.numpy(), axis=1)[:, None], index = [i for i in DATASET.commons_names2],
+                    columns = [i for i in DATASET.commons_names2])
     fig, ax = plt.subplots(figsize = (24,14))
     sn.heatmap(df_cm, annot=True,ax=ax)
     plt.savefig('heatmap.png')#figure size doesnt work
@@ -195,6 +216,8 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
     ## Saving the tensorboard data in sacred
     _run.add_artifact(latest_file)# Add raw tf record file to sacred
     _run.add_artifact('../log.txt')
+    os.remove('../log.txt')
+    
     serialized_examples = tf.data.TFRecordDataset(latest_file)
     for serialized_example in serialized_examples:
         event = event_pb2.Event.FromString(serialized_example.numpy())
@@ -202,4 +225,4 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
             _run.log_scalar(value.tag, value.simple_value)
 
     # We give the average accuracy as the result. The other metrics can be found in Omniboard
-    return results[0]['Top1_Acc_Stream/eval_phase/test_stream/Task000']
+    return results[-1]['Top1_Acc_Stream/eval_phase/test_stream/Task000']

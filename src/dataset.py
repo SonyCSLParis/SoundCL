@@ -4,15 +4,18 @@ import torch
 import torch.nn as nn
 from torchaudio.datasets import SPEECHCOMMANDS
 from torch.utils.data import Dataset
+from torchaudio.datasets.utils import _load_waveform
 import torchaudio.transforms as T
 import numpy as np
 import math
 import random
 import h5py
 import os
+import typing
+from pathlib import Path
 from tqdm import tqdm
 import logging
-
+from kymatio.torch import Scattering1D
 
 def speech_commands_collate(batch):
     """Collate function for setting up the dataloader
@@ -91,6 +94,7 @@ def mfcc_transform(audio_tensor,sample_rate,n_fft=512,n_mfcc=64,hop_length=10,me
             "hop_length": hop_length,
             "mel_scale": mel_scale,
             "n_fft": n_fft,
+            "n_mels":64,
         },
     )
     return transform(audio_tensor.to(dtype=torch.float32))
@@ -116,8 +120,21 @@ class MfccTransform(nn.Module):
     def __init__(self,sample_rate):
         super().__init__()
         self.sample_rate=sample_rate
-    def forward(self,x):
-        return mfcc_transform(audio_tensor=x,sample_rate=self.sample_rate)
+    def forward(self, x):
+        if len(x.shape)>1:
+            batch_size, num_samples = x.shape
+
+            mfcc_features = []
+            for i in range(batch_size):
+                audio_tensor = x[i]  # Extract each audio tensor from the batch
+                
+                mfcc = mfcc_transform(audio_tensor=audio_tensor,sample_rate=self.sample_rate)
+                mfcc_features.append(mfcc)
+
+            mfcc_features = torch.stack(mfcc_features)        
+            return mfcc_features.permute(0,2,1)
+        else:
+            return mfcc_transform(audio_tensor=x,sample_rate=self.sample_rate)
 
 class SpecAugment(nn.Module):
     def __init__(self):
@@ -125,6 +142,25 @@ class SpecAugment(nn.Module):
     def forward(self,x):
         return spec_aug(tensor=x)
 
+class Scattering(nn.Module):
+    def __init__(self):
+        super().__init__()
+        #Scattering hyperparameters
+        T=16000
+        J=4
+        Q=8
+        self.log_eps=1e-6
+        #Layers
+        self.scattering= Scattering1D(J=J,shape=T,Q=Q)
+        self.batch_norm= nn.BatchNorm2d(1)
+    def forward(self,x):
+        #print(x.shape)
+        x=self.scattering(x.squeeze())
+        #print(x.shape)
+        x=torch.log(torch.abs(x)+self.log_eps)
+        x=self.batch_norm(x.unsqueeze(1))
+        #print(x.shape)
+        return x.squeeze(1).permute(0,2,1)
 
 class SpeechCommandsData(SPEECHCOMMANDS):
     def __init__(self, root, url, download, subset):
@@ -139,6 +175,75 @@ class SpeechCommandsData(SPEECHCOMMANDS):
         wave = wave.squeeze(0)  # (T,)
 
         return wave, label, rate, speaker_id, ut_number
+
+class MLcommonsData():
+    def __init__(self, root,sub_folder,subset,folder_in_archive = "MLCommons"):
+        if sub_folder=='subset1':
+            self.labels_names = ['about', 'books', 'car', 'county', 'different', 'door', 'felt', 'game', 'has', 'live', 'man', 'north', 'open', 'party', 'put', 'run', 'side', 'sun', 'thing', 'trying', 'who', 'words', 'back', 'boy', 'church', 'day', 'does', 'end', 'friend', 'general', 'here', 'love', 'need', 'now', 'our', 'people', 'river', 'service', 'song', 'sure', 'then', 'treasure', 'why', 'you']
+        elif sub_folder=='subset2':
+            self.labels_names= ["tried","hey","career","south","please","working","building","old","around","company","himself","language","album","family","young","returned","important","throughout","understand","include","business","daughter","everything","englishman","between","outside",'about', 'books', 'car', 'county', 'different', 'door', 'felt', 'game', 'has', 'live', 'man', 'north', 'open', 'party', 'put', 'run', 'side', 'sun', 'thing', 'trying', 'who', 'words', 'back', 'boy', 'church', 'day', 'does', 'end', 'friend', 'general', 'here', 'love', 'need', 'now', 'our', 'people', 'river', 'service', 'song', 'sure', 'then', 'treasure', 'why', 'you']
+        else:
+            raise NotImplemented()
+
+        if subset is not None and subset not in ["training", "validation", "testing"]:
+            raise ValueError("When `subset` is not None, it must be one of ['training', 'validation', 'testing'].")
+
+        # Get string representation of 'root' in case Path object is passed
+        root = os.fspath(root)
+        self._archive = os.path.join(root, folder_in_archive)
+
+        basename = os.path.basename(sub_folder)
+        archive = os.path.join(root, basename)
+
+        basename = basename.rsplit(".", 2)[0]
+        folder_in_archive = os.path.join(folder_in_archive, basename)
+
+        self._path = os.path.join(root, folder_in_archive)
+
+        if not os.path.exists(self._path):
+            raise RuntimeError(
+                f"The path {self._path} doesn't exist. "
+                "Please check the ``root`` path or set `download=True` to download it"
+            )
+
+        if subset == "validation":
+            self._walker = self._load_list(self._path, "validation_list.txt")
+        elif subset == "testing":
+            self._walker = self._load_list(self._path, "testing_list.txt")
+        elif subset == "training":
+            excludes = set(self._load_list(self._path, "validation_list.txt", "testing_list.txt"))
+            walker = sorted(str(p) for p in Path(self._path).glob("*/*.wav"))
+            self._walker = [
+                w
+                for w in walker
+                if os.path.normpath(w) not in excludes
+            ]
+        else:
+            walker = sorted(str(p) for p in Path(self._path).glob("*/*.wav"))
+            self._walker = [w for w in walker]
+
+    def _load_list(self,root, *filenames):
+        output = []
+        for filename in filenames:
+            filepath = os.path.join(root, filename)
+            with open(filepath) as fileobj:
+                output += [os.path.normpath(os.path.join(root, line.strip())) for line in fileobj]
+        return output
+    
+    def get_metadata(self, n: int) -> typing.Tuple[str, int, str, str, int]:
+        relpath = os.path.relpath(self._walker[n], self._archive)
+        reldir, filename = os.path.split(relpath)
+        _, label = os.path.split(reldir)
+        return relpath, 16000, label
+    
+    def __getitem__(self, n: int) -> typing.Tuple[torch.Tensor, int, str, str, int]:
+        metadata = self.get_metadata(n)
+        waveform = _load_waveform(self._archive, metadata[0], metadata[1])
+        return waveform.squeeze(0),self.labels_names.index(metadata[2]),metadata[1],0,0
+    
+    def __len__(self) -> int:
+        return len(self._walker)
+
 
 class CachedAudio(Dataset):
     def __init__(self,subset,train_cache_path='../dataset_cache/',test_cache_path='../dataset_cache/'):
@@ -181,9 +286,12 @@ class Audio_Dataset():
     def __init__(self):
         
         self.labels_names = ["backward","bed","bird","cat","dog","down","eight","five","follow","forward","four","go","happy","house","learn","left","marvin","nine","no","off","on","one","right","seven","sheila","six","stop","three","tree","two","up","visual","wow","yes","zero"]
+        
+        self.commons_names = ['about', 'books', 'car', 'county', 'different', 'door', 'felt', 'game', 'has', 'live', 'man', 'north', 'open', 'party', 'put', 'run', 'side', 'sun', 'thing', 'trying', 'who', 'words', 'back', 'boy', 'church', 'day', 'does', 'end', 'friend', 'general', 'here', 'love', 'need', 'now', 'our', 'people', 'river', 'service', 'song', 'sure', 'then', 'treasure', 'why', 'you']
+        self.commons_names2= ["tried","hey","career","south","please","working","building","old","around","company","himself","language","album","family","young","returned","important","throughout","understand","include","business","daughter","everything","englishman","between","outside",'about', 'books', 'car', 'county', 'different', 'door', 'felt', 'game', 'has', 'live', 'man', 'north', 'open', 'party', 'put', 'run', 'side', 'sun', 'thing', 'trying', 'who', 'words', 'back', 'boy', 'church', 'day', 'does', 'end', 'friend', 'general', 'here', 'love', 'need', 'now', 'our', 'people', 'river', 'service', 'song', 'sure', 'then', 'treasure', 'why', 'you']
 
-        self.train_transformation = nn.Sequential(AddWhiteNoise(),MfccTransform(sample_rate=16000))#,SpecAugment())
-        self.test_transformation = nn.Sequential(MfccTransform(sample_rate=16000))
+        self.train_transformation = MfccTransform(sample_rate=16000)#nn.Sequential(AddWhiteNoise(),MfccTransform(sample_rate=16000))#,SpecAugment())
+        self.test_transformation = MfccTransform(sample_rate=16000)#nn.Sequential(MfccTransform(sample_rate=16000))
         self.transform_groups={
             'train':(self.train_transformation,None),
             'test':(self.test_transformation,None)
@@ -234,7 +342,25 @@ class Audio_Dataset():
         else:
             labels = [datapoint[1] for datapoint in dataset]
 
-            return make_classification_dataset(dataset, collate_fn=speech_commands_collate, targets=labels,transform_groups=transforms)
+            return make_classification_dataset(dataset, collate_fn=speech_commands_collate, targets=labels,transform_groups=None)
+
+    def MLCommons(self,
+        root='../dataset/',
+        sub_folder="subset1",
+        subset="training",
+        transforms=None,):
+
+        #Because the Ml commons dataset has the same structure as the speech commands dataset we can use the same wrapper
+        # we create empty validation and testing list because this is only used for pretraining
+        dataset = MLcommonsData(
+            root='../dataset/',
+            sub_folder=sub_folder,
+            subset=subset,
+        )
+
+        labels = [datapoint[1] for datapoint in dataset]
+
+        return make_classification_dataset(dataset, collate_fn=speech_commands_collate, targets=labels,transform_groups=None)
 
 
     def __call__(self,train,pre_process):
@@ -252,6 +378,3 @@ class Audio_Dataset():
         else:
             return self.SpeechCommands(subset='testing',pre_process=pre_process,transforms=self.transform_groups)
     
-#TODO Investigate this warning message in the preprocessing phase
-# [NeMo W 2023-04-25 16:06:52 nemo_logging:349] /home/joe/miniconda3/lib/python3.10/site-packages/torchaudio/functional/functional.py:571: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (257) may be set too low.
-#    warnings.warn(

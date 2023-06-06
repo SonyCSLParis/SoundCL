@@ -71,7 +71,7 @@ class ConvASREncoder(nn.Module):
         self.conv_res_block_1 = ConvBlock(
             feat_in,
             64,
-            repeat=1,
+            repeat=2,
             kernel_size=[13],
             stride=[1],
             dilation=[1],
@@ -96,7 +96,7 @@ class ConvASREncoder(nn.Module):
         self.conv_res_block_2 = ConvBlock(
             feat_in,
             64,
-            repeat=1,
+            repeat=2,
             kernel_size=[15],
             stride=[1],
             dilation=[1],
@@ -120,7 +120,7 @@ class ConvASREncoder(nn.Module):
         self.conv_res_block_3 = ConvBlock(
             feat_in,
             64,
-            repeat=1,
+            repeat=2,
             kernel_size=[17],
             stride=[1],
             dilation=[1],
@@ -142,77 +142,77 @@ class ConvASREncoder(nn.Module):
         feat_in = 64
 
         
-#        self.conv_res_block_4 = ConvBlock(
-#            feat_in,
-#            64,
-#            repeat=2,
-#            kernel_size=[19],
-#            stride=[1],
-#            dilation=[1],
-#            dropout=0.0,
-#            residual=True,
-#            groups=1,
-#            separable=True,
-#            heads=-1,
-#            residual_mode=residual_mode,
-#            normalization=normalization_mode,
-#            norm_groups=norm_groups,
-#            activation=activation,
-#            residual_panes=[],
-#            conv_mask=conv_mask,
-#            kernel_size_factor=1.0,
-#            stride_last=False
-#        )
-#        encoder_layers.append(self.conv_res_block_4)
-#        feat_in = 64
-#
-#
-#        self.conv_res_block_5 = ConvBlock(
-#            feat_in,
-#            64,
-#            repeat=2,
-#            kernel_size=[21],
-#            stride=[1],
-#            dilation=[1],
-#            dropout=0.0,
-#            residual=True,
-#            groups=1,
-#            separable=True,
-#            heads=-1,
-#            residual_mode=residual_mode,
-#            normalization=normalization_mode,
-#            norm_groups=norm_groups,
-#            activation=activation,
-#            residual_panes=[],
-#            conv_mask=conv_mask,
-#            kernel_size_factor=1.0,
-#            stride_last=False
-#        )
-#        encoder_layers.append(self.conv_res_block_5)
-#        feat_in = 64
-#
-#        self.conv_res_block_6 = ConvBlock(
-#            feat_in,
-#            64,
-#            repeat=2,
-#            kernel_size=[23],
-#            stride=[1],
-#            dilation=[1],
-#            dropout=0.0,
-#            residual=True,
-#            groups=1,
-#            separable=True,
-#            heads=-1,
-#            residual_mode=residual_mode,
-#            normalization=normalization_mode,
-#            norm_groups=norm_groups,
-#            activation=activation,
-#            residual_panes=[],
-#            conv_mask=conv_mask,
-#            kernel_size_factor=1.0,
-#            stride_last=False
-#        )
-#        encoder_layers.append(self.conv_res_block_6)
+        self.conv_res_block_4 = ConvBlock(
+            feat_in,
+            64,
+            repeat=2,
+            kernel_size=[19],
+            stride=[1],
+            dilation=[1],
+            dropout=0.0,
+            residual=True,
+            groups=1,
+            separable=True,
+            heads=-1,
+            residual_mode=residual_mode,
+            normalization=normalization_mode,
+            norm_groups=norm_groups,
+            activation=activation,
+            residual_panes=[],
+            conv_mask=conv_mask,
+            kernel_size_factor=1.0,
+            stride_last=False
+        )
+        encoder_layers.append(self.conv_res_block_4)
+        feat_in = 64
+
+
+        self.conv_res_block_5 = ConvBlock(
+            feat_in,
+            64,
+            repeat=2,
+            kernel_size=[21],
+            stride=[1],
+            dilation=[1],
+            dropout=0.0,
+            residual=True,
+            groups=1,
+            separable=True,
+            heads=-1,
+            residual_mode=residual_mode,
+            normalization=normalization_mode,
+            norm_groups=norm_groups,
+            activation=activation,
+            residual_panes=[],
+            conv_mask=conv_mask,
+            kernel_size_factor=1.0,
+            stride_last=False
+        )
+        encoder_layers.append(self.conv_res_block_5)
+        feat_in = 64
+
+        self.conv_res_block_6 = ConvBlock(
+            feat_in,
+            64,
+            repeat=2,
+            kernel_size=[23],
+            stride=[1],
+            dilation=[1],
+            dropout=0.0,
+            residual=True,
+            groups=1,
+            separable=True,
+            heads=-1,
+            residual_mode=residual_mode,
+            normalization=normalization_mode,
+            norm_groups=norm_groups,
+            activation=activation,
+            residual_panes=[],
+            conv_mask=conv_mask,
+            kernel_size_factor=1.0,
+            stride_last=False
+        )
+        encoder_layers.append(self.conv_res_block_6)
         feat_in = 64
         
 

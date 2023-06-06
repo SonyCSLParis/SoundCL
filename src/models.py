@@ -2,10 +2,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from avalanche.models.generator import Generator
+
 from matchbox.ConvASRDecoder import ConvASRDecoderClassification
 from matchbox.ConvASREncoder import ConvASREncoder
 
 from torchinfo import summary
+
+from kymatio.torch import Scattering1D
 
 class EncDecBaseModel(nn.Module):
 
@@ -47,20 +51,13 @@ class EncDecBaseModel(nn.Module):
             │    └─ConvBlock: 2-6                              --
             │    │    └─ModuleList: 3-14                       16,768
             │    │    └─Sequential: 3-15                       --
-            │    └─Sequential: 2-7                             73,472
-            │    │    └─ConvBlock: 3-16                        (recursive)
-            │    │    └─ConvBlock: 3-17                        (recursive)
-            │    │    └─ConvBlock: 3-18                        (recursive)
-            │    │    └─ConvBlock: 3-19                        (recursive)
-            │    │    └─ConvBlock: 3-20                        (recursive)
-            │    │    └─ConvBlock: 3-21                        (recursive)
             ├─ConvASRDecoderClassification: 1-2                --
             │    └─AdaptiveAvgPool1d: 2-8                      --
             │    └─Sequential: 2-9                             --
             │    │    └─Linear: 3-22                           4,515
             ===========================================================================
-            Total params: 151,459
-            Trainable params: 151,459
+            Total params: 77,987
+            Trainable params: 77,987
             Non-trainable params: 0
             ===========================================================================
         """
@@ -77,6 +74,84 @@ class EncDecBaseModel(nn.Module):
         return logits
 
 #TODO investigate parameter number difference
+
+class AudioVAE(nn.Module,Generator):
+    def __init__(self, imgChannels=1, featureDim=15656, zDim=256):
+        super(AudioVAE, self).__init__()
+
+        # Initializing the 2 convolutional layers and 2 full-connected layers for the encoder
+        self.encConv1 = nn.Conv2d(in_channels= imgChannels,out_channels= 2,kernel_size= (200,10))
+        self.encConv2 = nn.Conv2d(in_channels= 2,out_channels= 4,kernel_size= (200,10))
+        self.encConv3 = nn.Conv2d(in_channels= 4,out_channels= 4,kernel_size= (200,10))
+        self.encConv4 = nn.Conv2d(in_channels= 4,out_channels= 4,kernel_size= (200,10))
+        self.encConv5 = nn.Conv2d(in_channels= 4,out_channels= 4,kernel_size= (200,10))
+
+        self.flatten = nn.Flatten()
+
+        self.encFC1 = nn.Linear(featureDim, zDim)
+        self.encFC2 = nn.Linear(featureDim, zDim)
+
+        # Initializing the fully-connected layer and 2 convolutional layers for decoder
+        self.decFC1 = nn.Linear(zDim, featureDim)
+        self.decConv1 = nn.ConvTranspose2d(4, 4, (200,10))
+        self.decConv2 = nn.ConvTranspose2d(4, 4, (100,10))
+        self.decConv3 = nn.ConvTranspose2d(4, 4, (100,10))
+        self.decConv4 = nn.ConvTranspose2d(4, 2, (100,10))
+        self.decConv5 = nn.ConvTranspose2d(2, imgChannels, (100,10))
+
+    def encoder(self, x):
+
+        # Input is fed into 2 convolutional layers sequentially
+        # The output feature map are fed into 2 fully-connected layers to predict mean (mu) and variance (logVar)
+        # Mu and logVar are used for generating middle representation z and KL divergence loss
+        
+        x = F.relu(self.encConv1(x))
+        x = F.relu(self.encConv2(x))
+        x = F.relu(self.encConv3(x))
+        x = F.relu(self.encConv4(x))
+        x = F.relu(self.encConv5(x))
+        print(x.shape)
+        
+        x = self.flatten(x)
+        
+        print("hi",x.shape)
+        mu = self.encFC1(x)
+        logVar = self.encFC2(x)
+        return mu, logVar
+
+    def reparameterize(self, mu, logVar):
+
+        #Reparameterization takes in the input mu and logVar and sample the mu + std * eps
+        std = torch.exp(logVar/2)
+        eps = torch.randn_like(std)
+        return mu + std * eps
+
+    def decoder(self, z):
+
+        # z is fed back into a fully-connected layers and then into two transpose convolutional layers
+        # The generated output is the same size of the original input
+        x = F.relu(self.decFC1(z))
+        x = x.view([128, 4, 606, 19])
+        x = F.relu(self.decConv1(x))
+        x = F.relu(self.decConv2(x))
+        x = F.relu(self.decConv3(x))
+        x = F.relu(self.decConv4(x))
+        x = torch.sigmoid(self.decConv5(x))
+        return x
+
+    def generate(self, batch_size=None, condition=None):
+        #feed to decoder
+        with torch.no_grad():
+            return self.decoder(torch.randn(15656))
+
+    def forward(self, x):
+
+        # The entire pipeline of the VAE: encoder -> reparameterization -> decoder
+        # output, mu, and logVar are returned for loss computation
+        mu, logVar = self.encoder(x)
+        z = self.reparameterize(mu, logVar)
+        out = self.decoder(z)
+        return out, mu, logVar
 class M5(nn.Module):
 
     def __init__(self, n_input=1, n_output=35, stride=16, n_channel=32):
@@ -143,6 +218,36 @@ class M5(nn.Module):
         x = x.permute(0, 2, 1)
         x = self.fc1(x)
         return F.log_softmax(x, dim=2).squeeze()
+    
+class Scattering_Classifier(nn.Module):
+    def __init__(self):
+        super().__init__()
+        #Scattering hyperparameters
+        T=16000
+        J=12
+        Q=10
+        self.log_eps=1e-6
+        #Layers
+        self.scattering= Scattering1D(J=J,shape=T,Q=Q,T=1000)
+        self.batchnorm=nn.BatchNorm1d(673)
+        self.fc1= nn.Linear(673,300)
+        self.fc2= nn.Linear(300,90)
+        self.fc3= nn.Linear(90,35)
+
+    def forward(self,x):
+        #print(x.shape)
+        x=self.scattering(x.squeeze())
+        #print(x.shape)
+        x=x[:,1:,:]
+        x=torch.log(torch.abs(x)+self.log_eps)
+        #print(x.shape)
+        x=torch.mean(x,dim=-1)
+        x=self.batchnorm(x)
+        x=F.relu(self.fc1(x))
+        x=F.relu(self.fc2(x))
+        x=self.fc3(x)
+        return F.log_softmax(x,dim=-1)
+    
     
 if __name__=='__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

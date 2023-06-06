@@ -1,11 +1,9 @@
 import sounddevice as sd
-import os
 
 import torch
-import torchaudio
 
 from models import EncDecBaseModel
-from dataset import MfccTransform
+from dataset import MfccTransform,Scattering
 
 def record(seconds=1,sample_rate=16000):
 
@@ -24,8 +22,9 @@ def record(seconds=1,sample_rate=16000):
 
 def predict(model,audio,device):
     audio=audio.squeeze().to(device)
-    pre_process=MfccTransform(sample_rate=16000)
-    prediction=torch.nn.functional.softmax(model(pre_process(audio).permute(1,0).unsqueeze(0)),dim=-1).squeeze().argmax(dim=-1)
+    #pre_process=MfccTransform(sample_rate=16000)
+    
+    prediction=torch.nn.functional.softmax(model(audio.unsqueeze(0)),dim=-1).squeeze().argmax(dim=-1)
     labels_names = ["backward","bed","bird","cat","dog","down","eight","five","follow","forward","four","go","happy","house","learn","left","marvin","nine","no","off","on","one","right","seven","sheila","six","stop","three","tree","two","up","visual","wow","yes","zero"]
     return labels_names[prediction]
 
@@ -34,7 +33,7 @@ if __name__=='__main__':
     device=torch.device("cpu")
     #Load pytorch model
     PATH='../models/model.pt'
-    model = EncDecBaseModel(num_mels=64,num_classes=35,final_filter=128,input_length=1601)
+    model = torch.nn.Sequential( Scattering(),EncDecBaseModel(num_mels=125,num_classes=35,final_filter=128,input_length=1600))#EncDecBaseModel(num_mels=64,num_classes=35,final_filter=128,input_length=1601)
     model.load_state_dict(torch.load(PATH))
     model.to(device)
     model.eval()
