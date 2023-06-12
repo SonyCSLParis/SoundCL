@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>src.plugins.natgrad.kfac</title>
+    
+          <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../../../_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../../../_static/theme-vendors.js"></script> -->
+      <script src="../../../../_static/theme.js" defer></script>
+    
+  <link rel="index" title="Index" href="../../../../genindex.html" />
+  <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../../../index.html" class="home-link">
+    
+      <span class="site-name">Sound-CL</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../../../search.html" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../../../modules.html#src">src</a></span>
+      </p>
+      <ul class="">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../src.html" class="reference internal ">src package</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+    
+      <li><a href="../../../index.html">Module code</a> &raquo;</li>
+    
+    <li>src.plugins.natgrad.kfac</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <h1>Source code for src.plugins.natgrad.kfac</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+
+<span class="kn">from</span> <span class="nn">torch.optim.optimizer</span> <span class="kn">import</span> <span class="n">Optimizer</span>
+
+
+<div class="viewcode-block" id="KFAC"><a class="viewcode-back" href="../../../../src.plugins.natgrad.html#src.plugins.natgrad.kfac.KFAC">[docs]</a><span class="k">class</span> <span class="nc">KFAC</span><span class="p">(</span><span class="n">Optimizer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">net</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span> <span class="n">sua</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">update_freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">constraint_norm</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; K-FAC Preconditionner for Linear and Conv2d layers.</span>
+
+<span class="sd">        Computes the K-FAC of the second moment of the gradients.</span>
+<span class="sd">        It works for Linear and Conv2d layers and silently skip other layers.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            net (torch.nn.Module): Network to precondition.</span>
+<span class="sd">            eps (float): Tikhonov regularization parameter for the inverses.</span>
+<span class="sd">            sua (bool): Applies SUA approximation.</span>
+<span class="sd">            pi (bool): Computes pi correction for Tikhonov regularization.</span>
+<span class="sd">            update_freq (int): Perform inverses every update_freq updates.</span>
+<span class="sd">            alpha (float): Running average parameter (if == 1, no r. ave.).</span>
+<span class="sd">            constraint_norm (bool): Scale the gradients by the squared</span>
+<span class="sd">                fisher norm.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sua</span> <span class="o">=</span> <span class="n">sua</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pi</span> <span class="o">=</span> <span class="n">pi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_freq</span> <span class="o">=</span> <span class="n">update_freq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraint_norm</span> <span class="o">=</span> <span class="n">constraint_norm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fwd_handles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bwd_handles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_iteration_counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">net</span><span class="o">.</span><span class="n">modules</span><span class="p">():</span>
+            <span class="n">mod_class</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="k">if</span> <span class="n">mod_class</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Linear&#39;</span><span class="p">,</span> <span class="s1">&#39;Conv2d&#39;</span><span class="p">]:</span>
+                <span class="n">handle</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">register_forward_pre_hook</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_input</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_fwd_handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+                <span class="n">handle</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">register_backward_hook</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_grad_output</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_bwd_handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">mod</span><span class="o">.</span><span class="n">weight</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">mod</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="n">params</span><span class="p">,</span> <span class="s1">&#39;mod&#39;</span><span class="p">:</span> <span class="n">mod</span><span class="p">,</span> <span class="s1">&#39;layer_type&#39;</span><span class="p">:</span> <span class="n">mod_class</span><span class="p">}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">KFAC</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="p">{})</span>
+
+<div class="viewcode-block" id="KFAC.step"><a class="viewcode-back" href="../../../../src.plugins.natgrad.html#src.plugins.natgrad.kfac.KFAC.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update_stats</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">update_params</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Performs one step of preconditioning.&quot;&quot;&quot;</span>
+        <span class="n">fisher_norm</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_groups</span><span class="p">:</span>
+            <span class="c1"># Getting parameters</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">weight</span><span class="p">,</span> <span class="n">bias</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">weight</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">bias</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">weight</span><span class="p">]</span>
+            <span class="c1"># Update convariances and inverses</span>
+            <span class="k">if</span> <span class="n">update_stats</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iteration_counter</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_freq</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_compute_covs</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+                    <span class="n">ixxt</span><span class="p">,</span> <span class="n">iggt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inv_covs</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;xxt&#39;</span><span class="p">],</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;ggt&#39;</span><span class="p">],</span>
+                                                <span class="n">state</span><span class="p">[</span><span class="s1">&#39;num_locations&#39;</span><span class="p">])</span>
+                    <span class="n">state</span><span class="p">[</span><span class="s1">&#39;ixxt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ixxt</span>
+                    <span class="n">state</span><span class="p">[</span><span class="s1">&#39;iggt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">iggt</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_covs</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">update_params</span><span class="p">:</span>
+                <span class="c1"># Preconditionning</span>
+                <span class="n">gw</span><span class="p">,</span> <span class="n">gb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precond</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="n">bias</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+                <span class="c1"># Updating gradients</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraint_norm</span><span class="p">:</span>
+                    <span class="n">fisher_norm</span> <span class="o">+=</span> <span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">grad</span> <span class="o">*</span> <span class="n">gw</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="n">weight</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">gw</span>
+                <span class="k">if</span> <span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraint_norm</span><span class="p">:</span>
+                        <span class="n">fisher_norm</span> <span class="o">+=</span> <span class="p">(</span><span class="n">bias</span><span class="o">.</span><span class="n">grad</span> <span class="o">*</span> <span class="n">gb</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                    <span class="n">bias</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">gb</span>
+            <span class="c1"># Cleaning</span>
+            <span class="k">if</span> <span class="s1">&#39;x&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;mod&#39;</span><span class="p">]]:</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;mod&#39;</span><span class="p">]][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;gy&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;mod&#39;</span><span class="p">]]:</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;mod&#39;</span><span class="p">]][</span><span class="s1">&#39;gy&#39;</span><span class="p">]</span>
+        <span class="c1"># Eventually scale the norm of the gradients</span>
+        <span class="k">if</span> <span class="n">update_params</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraint_norm</span><span class="p">:</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">fisher_norm</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
+            <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_groups</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">]:</span>
+                    <span class="n">param</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span> <span class="o">*=</span> <span class="n">scale</span>
+        <span class="k">if</span> <span class="n">update_stats</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_iteration_counter</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+    <span class="k">def</span> <span class="nf">_save_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Saves input of layer to compute covariance.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mod</span><span class="o">.</span><span class="n">training</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">mod</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_save_grad_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">grad_input</span><span class="p">,</span> <span class="n">grad_output</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Saves grad on output of layer to compute covariance.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mod</span><span class="o">.</span><span class="n">training</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">mod</span><span class="p">][</span><span class="s1">&#39;gy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">grad_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">grad_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_precond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">bias</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Applies preconditioning.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;layer_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Conv2d&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sua</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precond_sua</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="n">bias</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+        <span class="n">ixxt</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;ixxt&#39;</span><span class="p">]</span>
+        <span class="n">iggt</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;iggt&#39;</span><span class="p">]</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">weight</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;layer_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Conv2d&#39;</span><span class="p">:</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">gb</span> <span class="o">=</span> <span class="n">bias</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">g</span><span class="p">,</span> <span class="n">gb</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">gb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">iggt</span><span class="p">,</span> <span class="n">g</span><span class="p">),</span> <span class="n">ixxt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;layer_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Conv2d&#39;</span><span class="p">:</span>
+            <span class="n">g</span> <span class="o">/=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;num_locations&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">gb</span> <span class="o">=</span> <span class="n">g</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">*</span><span class="n">bias</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gb</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">*</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">g</span><span class="p">,</span> <span class="n">gb</span>
+
+    <span class="k">def</span> <span class="nf">_precond_sua</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">bias</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Preconditioning for KFAC SUA.&quot;&quot;&quot;</span>
+        <span class="n">ixxt</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;ixxt&#39;</span><span class="p">]</span>
+        <span class="n">iggt</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;iggt&#39;</span><span class="p">]</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">weight</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;mod&#39;</span><span class="p">]</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">gb</span> <span class="o">=</span> <span class="n">bias</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">g</span><span class="p">,</span> <span class="n">gb</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">ixxt</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">iggt</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">g</span> <span class="o">/=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;num_locations&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">gb</span> <span class="o">=</span> <span class="n">g</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gb</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">g</span><span class="p">,</span> <span class="n">gb</span>
+
+    <span class="k">def</span> <span class="nf">_compute_covs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Computes the covariances.&quot;&quot;&quot;</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;mod&#39;</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;mod&#39;</span><span class="p">]][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+        <span class="n">gy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;mod&#39;</span><span class="p">]][</span><span class="s1">&#39;gy&#39;</span><span class="p">]</span>
+        <span class="c1"># Computation of xxt</span>
+        <span class="k">if</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;layer_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Conv2d&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">sua</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="n">mod</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span>
+                             <span class="n">stride</span><span class="o">=</span><span class="n">mod</span><span class="o">.</span><span class="n">stride</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">t</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">mod</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ones</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">ones</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iteration_counter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">state</span><span class="p">[</span><span class="s1">&#39;xxt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">t</span><span class="p">())</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">state</span><span class="p">[</span><span class="s1">&#39;xxt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">addmm_</span><span class="p">(</span><span class="n">mat1</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">mat2</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">t</span><span class="p">(),</span>
+                                <span class="n">beta</span><span class="o">=</span><span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">),</span>
+                                <span class="n">alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="c1"># Computation of ggt</span>
+        <span class="k">if</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;layer_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Conv2d&#39;</span><span class="p">:</span>
+            <span class="n">gy</span> <span class="o">=</span> <span class="n">gy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">state</span><span class="p">[</span><span class="s1">&#39;num_locations&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gy</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">gy</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">gy</span> <span class="o">=</span> <span class="n">gy</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">gy</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gy</span> <span class="o">=</span> <span class="n">gy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">t</span><span class="p">()</span>
+            <span class="n">state</span><span class="p">[</span><span class="s1">&#39;num_locations&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iteration_counter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">state</span><span class="p">[</span><span class="s1">&#39;ggt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">gy</span><span class="p">,</span> <span class="n">gy</span><span class="o">.</span><span class="n">t</span><span class="p">())</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">gy</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">state</span><span class="p">[</span><span class="s1">&#39;ggt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">addmm_</span><span class="p">(</span><span class="n">mat1</span><span class="o">=</span><span class="n">gy</span><span class="p">,</span> <span class="n">mat2</span><span class="o">=</span><span class="n">gy</span><span class="o">.</span><span class="n">t</span><span class="p">(),</span>
+                                <span class="n">beta</span><span class="o">=</span><span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">),</span>
+                                <span class="n">alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">gy</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">_inv_covs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xxt</span><span class="p">,</span> <span class="n">ggt</span><span class="p">,</span> <span class="n">num_locations</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Inverses the covariances.&quot;&quot;&quot;</span>
+        <span class="c1"># Computes pi</span>
+        <span class="n">pi</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">:</span>
+            <span class="n">tx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">xxt</span><span class="p">)</span> <span class="o">*</span> <span class="n">ggt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">tg</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">ggt</span><span class="p">)</span> <span class="o">*</span> <span class="n">xxt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">pi</span> <span class="o">=</span> <span class="p">(</span><span class="n">tx</span> <span class="o">/</span> <span class="n">tg</span><span class="p">)</span>
+        <span class="c1"># Regularizes and inverse</span>
+        <span class="n">eps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">/</span> <span class="n">num_locations</span>
+        <span class="n">diag_xxt</span> <span class="o">=</span> <span class="n">xxt</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">xxt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">fill_</span><span class="p">((</span><span class="n">eps</span> <span class="o">*</span> <span class="n">pi</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">diag_ggt</span> <span class="o">=</span> <span class="n">ggt</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">ggt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">fill_</span><span class="p">((</span><span class="n">eps</span> <span class="o">/</span> <span class="n">pi</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">ixxt</span> <span class="o">=</span> <span class="p">(</span><span class="n">xxt</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">diag_xxt</span><span class="p">))</span><span class="o">.</span><span class="n">inverse</span><span class="p">()</span>
+        <span class="n">iggt</span> <span class="o">=</span> <span class="p">(</span><span class="n">ggt</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">diag_ggt</span><span class="p">))</span><span class="o">.</span><span class="n">inverse</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ixxt</span><span class="p">,</span> <span class="n">iggt</span>
+    
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">handle</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fwd_handles</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bwd_handles</span><span class="p">:</span>
+            <span class="n">handle</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2023, Joe Khawand.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.1.3 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.8.0.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

@@ -131,11 +131,41 @@
 <section id="src-matchbox-convblock-module">
 <h2>src.matchbox.ConvBlock module<a class="headerlink" href="#src-matchbox-convblock-module" title="Permalink to this heading">¶</a></h2>
 </section>
-<section id="src-matchbox-maskedconv1d-module">
-<h2>src.matchbox.MaskedConv1d module<a class="headerlink" href="#src-matchbox-maskedconv1d-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-src.matchbox.MaskedConv1d">
+<span id="src-matchbox-maskedconv1d-module"></span><h2>src.matchbox.MaskedConv1d module<a class="headerlink" href="#module-src.matchbox.MaskedConv1d" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.matchbox.MaskedConv1d.MaskedConv1d">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.matchbox.MaskedConv1d.</span></span><span class="sig-name descname"><span class="pre">MaskedConv1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matchbox/MaskedConv1d.html#MaskedConv1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.matchbox.MaskedConv1d.MaskedConv1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.matchbox.MaskedConv1d.MaskedConv1d.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lens</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matchbox/MaskedConv1d.html#MaskedConv1d.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.matchbox.MaskedConv1d.MaskedConv1d.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.matchbox.MaskedConv1d.MaskedConv1d.get_seq_len">
+<span class="sig-name descname"><span class="pre">get_seq_len</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lens</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matchbox/MaskedConv1d.html#MaskedConv1d.get_seq_len"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.matchbox.MaskedConv1d.MaskedConv1d.get_seq_len" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.matchbox.MaskedConv1d.MaskedConv1d.update_masked_length">
+<span class="sig-name descname"><span class="pre">update_masked_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lens</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matchbox/MaskedConv1d.html#MaskedConv1d.update_masked_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.matchbox.MaskedConv1d.MaskedConv1d.update_masked_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">¶</a></h2>
+<section id="module-src.matchbox">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.matchbox" title="Permalink to this heading">¶</a></h2>
 </section>
 </section>
 

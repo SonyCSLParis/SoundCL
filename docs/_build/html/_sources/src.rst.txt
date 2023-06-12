@@ -45,21 +45,6 @@ src.models module
    :undoc-members:
    :show-inheritance:
 
-src.test module
----------------
-
-.. automodule:: src.test
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-src.test2 module
-----------------
-
-.. automodule:: src.test2
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 Module contents
 ---------------

@@ -119,14 +119,43 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 </section>
-<section id="src-plugins-natgrad-ekfac-module">
-<h2>src.plugins.natgrad.ekfac module<a class="headerlink" href="#src-plugins-natgrad-ekfac-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-src.plugins.natgrad.ekfac">
+<span id="src-plugins-natgrad-ekfac-module"></span><h2>src.plugins.natgrad.ekfac module<a class="headerlink" href="#module-src.plugins.natgrad.ekfac" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.plugins.natgrad.ekfac.EKFAC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.plugins.natgrad.ekfac.</span></span><span class="sig-name descname"><span class="pre">EKFAC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sua</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/plugins/natgrad/ekfac.html#EKFAC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.plugins.natgrad.ekfac.EKFAC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Optimizer</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.plugins.natgrad.ekfac.EKFAC.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/plugins/natgrad/ekfac.html#EKFAC.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.plugins.natgrad.ekfac.EKFAC.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs one step of preconditioning.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.plugins.natgrad.ekfac.grad_wrt_kernel">
+<span class="sig-prename descclassname"><span class="pre">src.plugins.natgrad.ekfac.</span></span><span class="sig-name descname"><span class="pre">grad_wrt_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/plugins/natgrad/ekfac.html#grad_wrt_kernel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.plugins.natgrad.ekfac.grad_wrt_kernel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </section>
-<section id="src-plugins-natgrad-kfac-module">
-<h2>src.plugins.natgrad.kfac module<a class="headerlink" href="#src-plugins-natgrad-kfac-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-src.plugins.natgrad.kfac">
+<span id="src-plugins-natgrad-kfac-module"></span><h2>src.plugins.natgrad.kfac module<a class="headerlink" href="#module-src.plugins.natgrad.kfac" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.plugins.natgrad.kfac.KFAC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.plugins.natgrad.kfac.</span></span><span class="sig-name descname"><span class="pre">KFAC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sua</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/plugins/natgrad/kfac.html#KFAC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.plugins.natgrad.kfac.KFAC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Optimizer</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.plugins.natgrad.kfac.KFAC.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/plugins/natgrad/kfac.html#KFAC.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.plugins.natgrad.kfac.KFAC.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs one step of preconditioning.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">¶</a></h2>
+<section id="module-src.plugins.natgrad">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.plugins.natgrad" title="Permalink to this heading">¶</a></h2>
 </section>
 </section>
 
