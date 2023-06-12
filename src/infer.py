@@ -6,6 +6,15 @@ from models import EncDecBaseModel
 from dataset import MfccTransform,Scattering
 
 def record(seconds=1,sample_rate=16000):
+    """Function to record the user using the machine default microphone
+
+    Args:
+        seconds (int, optional): Defaults to 1.
+        sample_rate (int, optional): Defaults to 16000.
+
+    Yields:
+        torch.tensor : A 1 dimensional tensor representing the audio
+    """
 
     while True:
 
@@ -21,6 +30,16 @@ def record(seconds=1,sample_rate=16000):
         yield torch.from_numpy(recording)
 
 def predict(model,audio,device):
+    """Function that return the prediction of the model, i.e the argmax of the softmax of the logits.
+
+    Args:
+        model (nn.Module): pytorch neural network
+        audio (torch.tensor): audio tensor
+        device (torch.device): Preferably cpu
+
+    Returns:
+        str: predicted label
+    """
     audio=audio.squeeze().to(device)
     #pre_process=MfccTransform(sample_rate=16000)
     
@@ -29,6 +48,9 @@ def predict(model,audio,device):
     return labels_names[prediction]
 
 if __name__=='__main__':
+    """The script enable live testing of the trained models.
+    In order to do so choose your model then run the script add follow the instructions to record yourself.
+    """
     #Define device
     device=torch.device("cpu")
     #Load pytorch model
