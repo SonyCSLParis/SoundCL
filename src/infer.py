@@ -6,7 +6,7 @@ from models import EncDecBaseModel
 from dataset import MfccTransform,Scattering
 
 def record(seconds=1,sample_rate=16000):
-    """Function to record the user using the machine default microphone
+    """Function to record the user using the machine default microphone 
 
     Args:
         seconds (int, optional): Defaults to 1.
