@@ -13,6 +13,9 @@ jobs:
           pip install sphinx sphinx-press-theme ghp-import pytest
       - name: Sphinx build
         run: |
+          cd docs
+          make clean html
+          cd ..
           sphinx-build docs _build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
