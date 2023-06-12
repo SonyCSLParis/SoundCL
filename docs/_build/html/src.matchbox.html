@@ -122,14 +122,205 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 </section>
-<section id="src-matchbox-convasrdecoder-module">
-<h2>src.matchbox.ConvASRDecoder module<a class="headerlink" href="#src-matchbox-convasrdecoder-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-src.matchbox.ConvASRDecoder">
+<span id="src-matchbox-convasrdecoder-module"></span><h2>src.matchbox.ConvASRDecoder module<a class="headerlink" href="#module-src.matchbox.ConvASRDecoder" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.matchbox.ConvASRDecoder.ConvASRDecoderClassification">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.matchbox.ConvASRDecoder.</span></span><span class="sig-name descname"><span class="pre">ConvASRDecoderClassification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feat_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'xavier_uniform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_logits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pooling_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'avg'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matchbox/ConvASRDecoder.html#ConvASRDecoderClassification"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.matchbox.ConvASRDecoder.ConvASRDecoderClassification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.matchbox.ConvASRDecoder.ConvASRDecoderClassification.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoder_output</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matchbox/ConvASRDecoder.html#ConvASRDecoderClassification.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.matchbox.ConvASRDecoder.ConvASRDecoderClassification.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="src-matchbox-convasrencoder-module">
-<h2>src.matchbox.ConvASREncoder module<a class="headerlink" href="#src-matchbox-convasrencoder-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-src.matchbox.ConvASREncoder">
+<span id="src-matchbox-convasrencoder-module"></span><h2>src.matchbox.ConvASREncoder module<a class="headerlink" href="#module-src.matchbox.ConvASREncoder" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.matchbox.ConvASREncoder.ConvASREncoder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.matchbox.ConvASREncoder.</span></span><span class="sig-name descname"><span class="pre">ConvASREncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'relu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feat_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residual_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'add'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_splicing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'xavier_uniform'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matchbox/ConvASREncoder.html#ConvASREncoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.matchbox.ConvASREncoder.ConvASREncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.matchbox.ConvASREncoder.ConvASREncoder.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matchbox/ConvASREncoder.html#ConvASREncoder.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.matchbox.ConvASREncoder.ConvASREncoder.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="src-matchbox-convblock-module">
-<h2>src.matchbox.ConvBlock module<a class="headerlink" href="#src-matchbox-convblock-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-src.matchbox.ConvBlock">
+<span id="src-matchbox-convblock-module"></span><h2>src.matchbox.ConvBlock module<a class="headerlink" href="#module-src.matchbox.ConvBlock" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.matchbox.ConvBlock.ConvBlock">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.matchbox.ConvBlock.</span></span><span class="sig-name descname"><span class="pre">ConvBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inplanes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'same'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residual_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'add'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residual_panes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.matchbox.ConvBlock.ConvBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inplanes</strong> – Number of input channels.</p></li>
+<li><p><strong>planes</strong> – Number of output channels.</p></li>
+<li><p><strong>repe_at</strong> – Number of repeated sub-blocks (R) for this block.</p></li>
+<li><p><strong>kernelsize</strong> – Convolution kernel size across all repeated sub-blocks.</p></li>
+<li><p><strong>kernel_size_factor</strong> – Floating point scale value that is multiplied with kernel size,
+then rounded down to nearest odd integer to compose the kernel size. Defaults to 1.0.</p></li>
+<li><p><strong>stride</strong> – Stride of the convolutional layers.</p></li>
+<li><p><strong>dilation</strong> – Integer which defined dilation factor of kernel. Note that when dilation &gt; 1, stride must
+be equal to 1.</p></li>
+<li><p><strong>padding</strong> – String representing type of padding. Currently only supports “same” padding,
+which symmetrically pads the input tensor with zeros.</p></li>
+<li><p><strong>dropout</strong> – Floating point value, determins percentage of output that is zeroed out.</p></li>
+<li><p><strong>activation</strong> – String representing activation functions. Valid activation functions are :
+{“hardtanh”: nn.Hardtanh, “relu”: nn.ReLU, “selu”: nn.SELU, “swish”: Swish}.
+Defaults to “relu”.</p></li>
+<li><p><strong>residual</strong> – Bool that determined whether a residual branch should be added or not.
+All residual branches are constructed using a pointwise convolution kernel, that may or may not
+perform strided convolution depending on the parameter <cite>residual_mode</cite>.</p></li>
+<li><p><strong>groups</strong> – Number of groups for Grouped Convolutions. Defaults to 1.</p></li>
+<li><p><strong>separable</strong> – Bool flag that describes whether Time-Channel depthwise separable convolution should be
+constructed, or ordinary convolution should be constructed.</p></li>
+<li><p><strong>heads</strong> – Number of “heads” for the masked convolution. Defaults to -1, which disables it.</p></li>
+<li><p><strong>normalization</strong> – String that represents type of normalization performed. Can be one of
+“batch”, “group”, “instance” or “layer” to compute BatchNorm1D, GroupNorm1D, InstanceNorm or
+LayerNorm (which are special cases of GroupNorm1D).</p></li>
+<li><p><strong>norm_groups</strong> – Number of groups used for GroupNorm (if <cite>normalization</cite> == “group”).</p></li>
+<li><p><strong>residual_mode</strong> – String argument which describes whether the residual branch should be simply
+added (“add”) or should first stride, then add (“stride_add”). Required when performing stride on
+parallel branch as well as utilizing residual add.</p></li>
+<li><p><strong>residual_panes</strong> – Number of residual panes, used for Jasper-DR models. Please refer to the paper.</p></li>
+<li><p><strong>conv_mask</strong> – Bool flag which determines whether to utilize masked convolutions or not. In general,
+it should be set to True.</p></li>
+<li><p><strong>stride_last</strong> – Bool flag that determines whether all repeated blocks should stride at once,
+(stride of S^R when this flag is False) or just the last repeated block should stride
+(stride of S when this flag is True).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.matchbox.ConvBlock.ConvBlock.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.matchbox.ConvBlock.ConvBlock.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward pass of the module.
+:param <a href="#id1"><span class="problematic" id="id2">input_</span></a>: The input is a tuple of two values - the preprocessed audio signal as well as the lengths</p>
+<blockquote>
+<div><p>of the audio signal. The audio signal is padded to the shape [B, D, T] and the lengths are
+a torch vector of length B.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The output of the block after processing the input through <cite>repeat</cite> number of sub-blocks,
+as well as the lengths of the encoded audio after padding/striding.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.matchbox.ConvBlock.GroupShuffle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.matchbox.ConvBlock.</span></span><span class="sig-name descname"><span class="pre">GroupShuffle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.matchbox.ConvBlock.GroupShuffle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.matchbox.ConvBlock.GroupShuffle.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.matchbox.ConvBlock.GroupShuffle.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.matchbox.ConvBlock.compute_new_kernel_size">
+<span class="sig-prename descclassname"><span class="pre">src.matchbox.ConvBlock.</span></span><span class="sig-name descname"><span class="pre">compute_new_kernel_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_width</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.matchbox.ConvBlock.compute_new_kernel_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.matchbox.ConvBlock.get_same_padding">
+<span class="sig-prename descclassname"><span class="pre">src.matchbox.ConvBlock.</span></span><span class="sig-name descname"><span class="pre">get_same_padding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilation</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.matchbox.ConvBlock.get_same_padding" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.matchbox.ConvBlock.init_weights">
+<span class="sig-prename descclassname"><span class="pre">src.matchbox.ConvBlock.</span></span><span class="sig-name descname"><span class="pre">init_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'xavier_uniform'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.matchbox.ConvBlock.init_weights" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.matchbox.ConvBlock.tds_normal_">
+<span class="sig-prename descclassname"><span class="pre">src.matchbox.ConvBlock.</span></span><span class="sig-name descname"><span class="pre">tds_normal_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fan_in'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.matchbox.ConvBlock.tds_normal_" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Normal Initialization from the paper [Sequence-to-Sequence Speech Recognition with Time-Depth Separable Convolutions](<a class="reference external" href="https://www.isca-speech.org/archive/Interspeech_2019/pdfs/2460.pdf">https://www.isca-speech.org/archive/Interspeech_2019/pdfs/2460.pdf</a>)
+Normalized to -
+.. math:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ext</span><span class="p">{</span><span class="n">bound</span><span class="p">}</span> <span class="o">=</span>    <span class="n">ext</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span>  <span class="n">imes</span> \<span class="n">sqrt</span><span class="p">{</span>
+</pre></div>
+</div>
+</div></blockquote>
+<dl>
+<dt>rac{1}{     ext{fan_mode}}}</dt><dd><dl>
+<dt>Args:</dt><dd><p>tensor: an n-dimensional <cite>torch.Tensor</cite>
+mode: either <code class="docutils literal notranslate"><span class="pre">'fan_in'</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">'fan_out'</span></code>. Choosing <code class="docutils literal notranslate"><span class="pre">'fan_in'</span></code></p>
+<blockquote>
+<div><p>preserves the magnitude of the variance of the weights in the
+forward pass. Choosing <code class="docutils literal notranslate"><span class="pre">'fan_out'</span></code> preserves the magnitudes in the
+backwards pass.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.matchbox.ConvBlock.tds_uniform_">
+<span class="sig-prename descclassname"><span class="pre">src.matchbox.ConvBlock.</span></span><span class="sig-name descname"><span class="pre">tds_uniform_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fan_in'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.matchbox.ConvBlock.tds_uniform_" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Uniform Initialization from the paper [Sequence-to-Sequence Speech Recognition with Time-Depth Separable Convolutions](<a class="reference external" href="https://www.isca-speech.org/archive/Interspeech_2019/pdfs/2460.pdf">https://www.isca-speech.org/archive/Interspeech_2019/pdfs/2460.pdf</a>)
+Normalized to -
+.. math:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ext</span><span class="p">{</span><span class="n">bound</span><span class="p">}</span> <span class="o">=</span>    <span class="n">ext</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span>  <span class="n">imes</span> \<span class="n">sqrt</span><span class="p">{</span>
+</pre></div>
+</div>
+</div></blockquote>
+<dl>
+<dt>rac{1}{     ext{fan_mode}}}</dt><dd><dl>
+<dt>Args:</dt><dd><p>tensor: an n-dimensional <cite>torch.Tensor</cite>
+mode: either <code class="docutils literal notranslate"><span class="pre">'fan_in'</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">'fan_out'</span></code>. Choosing <code class="docutils literal notranslate"><span class="pre">'fan_in'</span></code></p>
+<blockquote>
+<div><p>preserves the magnitude of the variance of the weights in the
+forward pass. Choosing <code class="docutils literal notranslate"><span class="pre">'fan_out'</span></code> preserves the magnitudes in the
+backwards pass.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-src.matchbox.MaskedConv1d">
 <span id="src-matchbox-maskedconv1d-module"></span><h2>src.matchbox.MaskedConv1d module<a class="headerlink" href="#module-src.matchbox.MaskedConv1d" title="Permalink to this heading">¶</a></h2>
