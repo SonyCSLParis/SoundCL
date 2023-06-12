@@ -1,3 +1,3 @@
 [submodule "src/plugins/EKFAC-pytorch"]
-	path = src/plugins/EKFAC-pytorch
+	path = src/plugins/natgrad
 	url = https://github.com/Thrandis/EKFAC-pytorch.git
