@@ -15,13 +15,6 @@ jobs:
         run: |
           cd docs
           make clean html
-          cd ..
-          sphinx-build docs _build
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        with:
-          publish_branch: gh-pages
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: _build/
-          force_orphan: true
+      - name: Run ghp-import
+        run: | 
+          ghp-import -n -p -f docs/_build/html
