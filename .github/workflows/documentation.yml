@@ -10,11 +10,7 @@ jobs:
       - uses: actions/setup-python@v3
       - name: Install dependencies
         run: |
-          pip install sphinx sphinx-press-theme ghp-import pytest
-      - name: Sphinx build
-        run: |
-          cd docs
-          make clean html
+          pip install sphinx sphinx-press-theme ghp-import
       - name: Run ghp-import
         run: | 
           ghp-import -n -p -f docs/_build/html
