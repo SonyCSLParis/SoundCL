@@ -121,7 +121,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preconditioner</span> <span class="o">=</span> <span class="n">EKFAC</span><span class="p">(</span><span class="n">network</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">ra</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<div class="viewcode-block" id="EKFAC_Plugin.before_update"><a class="viewcode-back" href="../../../src.plugins.html#src.plugins.ekfac_plugin.EKFAC_Plugin.before_update">[docs]</a>    <span class="k">def</span> <span class="nf">before_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="EKFAC_Plugin.before_update"><a class="viewcode-back" href="../../../src.plugins.html#src.plugins.ekfac_plugin.EKFAC_Plugin.before_update">[docs]</a>    <span class="k">def</span> <span class="nf">before_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">strategy</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preconditioner</span><span class="o">.</span><span class="n">step</span><span class="p">()</span></div></div>
 
 <div class="viewcode-block" id="KFAC_Plugin"><a class="viewcode-back" href="../../../src.plugins.html#src.plugins.ekfac_plugin.KFAC_Plugin">[docs]</a><span class="k">class</span> <span class="nc">KFAC_Plugin</span><span class="p">(</span><span class="n">BaseSGDPlugin</span><span class="p">):</span>
@@ -133,9 +133,9 @@
 <span class="sd">            eps (float, optional): Tikhonov regularization parameter. Defaults to 0.1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">preconditioner</span> <span class="o">=</span> <span class="n">KFAC</span><span class="p">(</span><span class="n">network</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">ra</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preconditioner</span> <span class="o">=</span> <span class="n">KFAC</span><span class="p">(</span><span class="n">network</span><span class="p">,</span><span class="n">eps</span><span class="p">)</span>
 
-<div class="viewcode-block" id="KFAC_Plugin.before_update"><a class="viewcode-back" href="../../../src.plugins.html#src.plugins.ekfac_plugin.KFAC_Plugin.before_update">[docs]</a>    <span class="k">def</span> <span class="nf">before_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="KFAC_Plugin.before_update"><a class="viewcode-back" href="../../../src.plugins.html#src.plugins.ekfac_plugin.KFAC_Plugin.before_update">[docs]</a>    <span class="k">def</span> <span class="nf">before_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">strategy</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preconditioner</span><span class="o">.</span><span class="n">step</span><span class="p">()</span></div></div>
 </pre></div>
 
