@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2023-06-06T10:08:30+02:00" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>matchbox package &mdash; Sound-CL 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/clipboard.min.js"></script>
+        <script src="_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="plugins package" href="plugins.html" />
+    <link rel="prev" title="models module" href="models.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Sound-CL
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webtools.html">Webtools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataset.html">dataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="infer.html">infer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html">transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html">models module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">matchbox package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-matchbox.ConvASRDecoder">matchbox.ConvASRDecoder module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#matchbox.ConvASRDecoder.ConvASRDecoderClassification"><code class="docutils literal notranslate"><span class="pre">ConvASRDecoderClassification</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-matchbox.ConvASREncoder">matchbox.ConvASREncoder module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#matchbox.ConvASREncoder.ConvASREncoder"><code class="docutils literal notranslate"><span class="pre">ConvASREncoder</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-matchbox.ConvBlock">matchbox.ConvBlock module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#matchbox.ConvBlock.ConvBlock"><code class="docutils literal notranslate"><span class="pre">ConvBlock</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matchbox.ConvBlock.GroupShuffle"><code class="docutils literal notranslate"><span class="pre">GroupShuffle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matchbox.ConvBlock.compute_new_kernel_size"><code class="docutils literal notranslate"><span class="pre">compute_new_kernel_size()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matchbox.ConvBlock.get_same_padding"><code class="docutils literal notranslate"><span class="pre">get_same_padding()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matchbox.ConvBlock.init_weights"><code class="docutils literal notranslate"><span class="pre">init_weights()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matchbox.ConvBlock.tds_normal_"><code class="docutils literal notranslate"><span class="pre">tds_normal_()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matchbox.ConvBlock.tds_uniform_"><code class="docutils literal notranslate"><span class="pre">tds_uniform_()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-matchbox.MaskedConv1d">matchbox.MaskedConv1d module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#matchbox.MaskedConv1d.MaskedConv1d"><code class="docutils literal notranslate"><span class="pre">MaskedConv1d</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="plugins.html">plugins package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">templates package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="web.html">web</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Sound-CL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">src</a></li>
+      <li class="breadcrumb-item active">matchbox package</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="matchbox-package">
+<h1>matchbox package<a class="headerlink" href="#matchbox-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-matchbox.ConvASRDecoder">
+<span id="matchbox-convasrdecoder-module"></span><h2>matchbox.ConvASRDecoder module<a class="headerlink" href="#module-matchbox.ConvASRDecoder" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="matchbox.ConvASRDecoder.ConvASRDecoderClassification">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">matchbox.ConvASRDecoder.</span></span><span class="sig-name descname"><span class="pre">ConvASRDecoderClassification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feat_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'xavier_uniform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_logits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pooling_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'avg'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/matchbox/ConvASRDecoder.html#ConvASRDecoderClassification"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matchbox.ConvASRDecoder.ConvASRDecoderClassification" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="matchbox.ConvASRDecoder.ConvASRDecoderClassification.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoder_output</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/matchbox/ConvASRDecoder.html#ConvASRDecoderClassification.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matchbox.ConvASRDecoder.ConvASRDecoderClassification.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-matchbox.ConvASREncoder">
+<span id="matchbox-convasrencoder-module"></span><h2>matchbox.ConvASREncoder module<a class="headerlink" href="#module-matchbox.ConvASREncoder" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="matchbox.ConvASREncoder.ConvASREncoder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">matchbox.ConvASREncoder.</span></span><span class="sig-name descname"><span class="pre">ConvASREncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'relu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feat_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residual_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'add'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_splicing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'xavier_uniform'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/matchbox/ConvASREncoder.html#ConvASREncoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matchbox.ConvASREncoder.ConvASREncoder" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="matchbox.ConvASREncoder.ConvASREncoder.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/matchbox/ConvASREncoder.html#ConvASREncoder.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matchbox.ConvASREncoder.ConvASREncoder.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-matchbox.ConvBlock">
+<span id="matchbox-convblock-module"></span><h2>matchbox.ConvBlock module<a class="headerlink" href="#module-matchbox.ConvBlock" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="matchbox.ConvBlock.ConvBlock">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">matchbox.ConvBlock.</span></span><span class="sig-name descname"><span class="pre">ConvBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inplanes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'same'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residual_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'add'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residual_panes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#matchbox.ConvBlock.ConvBlock" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Convolution Block torch Module. This is the main building block of the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inplanes</strong> – Number of input channels.</p></li>
+<li><p><strong>planes</strong> – Number of output channels.</p></li>
+<li><p><strong>repe_at</strong> – Number of repeated sub-blocks (R) for this block.</p></li>
+<li><p><strong>kernelsize</strong> – Convolution kernel size across all repeated sub-blocks.</p></li>
+<li><p><strong>kernel_size_factor</strong> – Floating point scale value that is multiplied with kernel size, then rounded down to nearest odd integer to compose the kernel size. Defaults to 1.0.</p></li>
+<li><p><strong>stride</strong> – Stride of the convolutional layers.</p></li>
+<li><p><strong>dilation</strong> – Integer which defined dilation factor of kernel. Note that when dilation &gt; 1, stride must be equal to 1.</p></li>
+<li><p><strong>padding</strong> – String representing type of padding. Currently only supports “same” padding, which symmetrically pads the input tensor with zeros.</p></li>
+<li><p><strong>dropout</strong> – Floating point value, determins percentage of output that is zeroed out.</p></li>
+<li><p><strong>activation</strong> – String representing activation functions. Valid activation functions are :
+{“hardtanh”: nn.Hardtanh, “relu”: nn.ReLU, “selu”: nn.SELU, “swish”: Swish}.
+Defaults to “relu”.</p></li>
+<li><p><strong>residual</strong> – Bool that determined whether a residual branch should be added or not.
+All residual branches are constructed using a pointwise convolution kernel, that may or may not
+perform strided convolution depending on the parameter <cite>residual_mode</cite>.</p></li>
+<li><p><strong>groups</strong> – Number of groups for Grouped Convolutions. Defaults to 1.</p></li>
+<li><p><strong>separable</strong> – Bool flag that describes whether Time-Channel depthwise separable convolution should be
+constructed, or ordinary convolution should be constructed.</p></li>
+<li><p><strong>heads</strong> – Number of “heads” for the masked convolution. Defaults to -1, which disables it.</p></li>
+<li><p><strong>normalization</strong> – String that represents type of normalization performed. Can be one of
+“batch”, “group”, “instance” or “layer” to compute BatchNorm1D, GroupNorm1D, InstanceNorm or
+LayerNorm (which are special cases of GroupNorm1D).</p></li>
+<li><p><strong>norm_groups</strong> – Number of groups used for GroupNorm (if <cite>normalization</cite> == “group”).</p></li>
+<li><p><strong>residual_mode</strong> – String argument which describes whether the residual branch should be simply
+added (“add”) or should first stride, then add (“stride_add”). Required when performing stride on
+parallel branch as well as utilizing residual add.</p></li>
+<li><p><strong>residual_panes</strong> – Number of residual panes, used for Jasper-DR models. Please refer to the paper.</p></li>
+<li><p><strong>conv_mask</strong> – Bool flag which determines whether to utilize masked convolutions or not. In general,
+it should be set to True.</p></li>
+<li><p><strong>stride_last</strong> – Bool flag that determines whether all repeated blocks should stride at once,
+(stride of S^R when this flag is False) or just the last repeated block should stride
+(stride of S when this flag is True).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="matchbox.ConvBlock.ConvBlock.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#matchbox.ConvBlock.ConvBlock.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Forward pass of the module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input</strong> – The input is a tuple of two values - the preprocessed audio signal as well as the lengths
+of the audio signal. The audio signal is padded to the shape [B, D, T] and the lengths are
+a torch vector of length B.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The output of the block after processing the input through <cite>repeat</cite> number of sub-blocks,
+as well as the lengths of the encoded audio after padding/striding.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="matchbox.ConvBlock.GroupShuffle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">matchbox.ConvBlock.</span></span><span class="sig-name descname"><span class="pre">GroupShuffle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#matchbox.ConvBlock.GroupShuffle" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="matchbox.ConvBlock.GroupShuffle.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#matchbox.ConvBlock.GroupShuffle.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="matchbox.ConvBlock.compute_new_kernel_size">
+<span class="sig-prename descclassname"><span class="pre">matchbox.ConvBlock.</span></span><span class="sig-name descname"><span class="pre">compute_new_kernel_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_width</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#matchbox.ConvBlock.compute_new_kernel_size" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="matchbox.ConvBlock.get_same_padding">
+<span class="sig-prename descclassname"><span class="pre">matchbox.ConvBlock.</span></span><span class="sig-name descname"><span class="pre">get_same_padding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilation</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#matchbox.ConvBlock.get_same_padding" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="matchbox.ConvBlock.init_weights">
+<span class="sig-prename descclassname"><span class="pre">matchbox.ConvBlock.</span></span><span class="sig-name descname"><span class="pre">init_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'xavier_uniform'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#matchbox.ConvBlock.init_weights" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="matchbox.ConvBlock.tds_normal_">
+<span class="sig-prename descclassname"><span class="pre">matchbox.ConvBlock.</span></span><span class="sig-name descname"><span class="pre">tds_normal_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fan_in'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#matchbox.ConvBlock.tds_normal_" title="Permalink to this definition"></a></dt>
+<dd><p>Normal Initialization from the paper <a class="reference external" href="https://www.isca-speech.org/archive/Interspeech_2019/pdfs/2460.pdf">Sequence-to-Sequence Speech Recognition with Time-Depth Separable Convolutions</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor</strong> – an n-dimensional <cite>torch.Tensor</cite></p></li>
+<li><p><strong>mode</strong> – either <code class="docutils literal notranslate"><span class="pre">'fan_in'</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">'fan_out'</span></code>. Choosing <code class="docutils literal notranslate"><span class="pre">'fan_in'</span></code> preserves the magnitude of the variance of the weights in the forward pass. Choosing <code class="docutils literal notranslate"><span class="pre">'fan_out'</span></code> preserves the magnitudes in the backwards pass.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="matchbox.ConvBlock.tds_uniform_">
+<span class="sig-prename descclassname"><span class="pre">matchbox.ConvBlock.</span></span><span class="sig-name descname"><span class="pre">tds_uniform_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fan_in'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#matchbox.ConvBlock.tds_uniform_" title="Permalink to this definition"></a></dt>
+<dd><p>Uniform Initialization from the paper <a class="reference external" href="https://www.isca-speech.org/archive/Interspeech_2019/pdfs/2460.pdf">Sequence-to-Sequence Speech Recognition with Time-Depth Separable Convolutions</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor</strong> – an n-dimensional <cite>torch.Tensor</cite></p></li>
+<li><p><strong>mode</strong> – either <code class="docutils literal notranslate"><span class="pre">'fan_in'</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">'fan_out'</span></code>. Choosing <code class="docutils literal notranslate"><span class="pre">'fan_in'</span></code> preserves the magnitude of the variance of the weights in the forward pass. Choosing <code class="docutils literal notranslate"><span class="pre">'fan_out'</span></code> preserves the magnitudes in the backwards pass.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-matchbox.MaskedConv1d">
+<span id="matchbox-maskedconv1d-module"></span><h2>matchbox.MaskedConv1d module<a class="headerlink" href="#module-matchbox.MaskedConv1d" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="matchbox.MaskedConv1d.MaskedConv1d">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">matchbox.MaskedConv1d.</span></span><span class="sig-name descname"><span class="pre">MaskedConv1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/matchbox/MaskedConv1d.html#MaskedConv1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matchbox.MaskedConv1d.MaskedConv1d" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="matchbox.MaskedConv1d.MaskedConv1d.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lens</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/matchbox/MaskedConv1d.html#MaskedConv1d.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matchbox.MaskedConv1d.MaskedConv1d.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="matchbox.MaskedConv1d.MaskedConv1d.get_seq_len">
+<span class="sig-name descname"><span class="pre">get_seq_len</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lens</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/matchbox/MaskedConv1d.html#MaskedConv1d.get_seq_len"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matchbox.MaskedConv1d.MaskedConv1d.get_seq_len" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="matchbox.MaskedConv1d.MaskedConv1d.update_masked_length">
+<span class="sig-name descname"><span class="pre">update_masked_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lens</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/matchbox/MaskedConv1d.html#MaskedConv1d.update_masked_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matchbox.MaskedConv1d.MaskedConv1d.update_masked_length" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-matchbox"></span></section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="models.html" class="btn btn-neutral float-left" title="models module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="plugins.html" class="btn btn-neutral float-right" title="plugins package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Joe Khawand.
+      <span class="lastupdated">Last updated on Jun 06, 2023.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

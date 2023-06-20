@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2023-06-06T10:08:30+02:00" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>models module &mdash; Sound-CL 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/clipboard.min.js"></script>
+        <script src="_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="matchbox package" href="matchbox.html" />
+    <link rel="prev" title="transforms module" href="transforms.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Sound-CL
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webtools.html">Webtools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataset.html">dataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="infer.html">infer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html">transforms module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">models module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#models.AudioVAE"><code class="docutils literal notranslate"><span class="pre">AudioVAE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#models.AudioVAE.decoder"><code class="docutils literal notranslate"><span class="pre">AudioVAE.decoder()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#models.AudioVAE.encoder"><code class="docutils literal notranslate"><span class="pre">AudioVAE.encoder()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#models.AudioVAE.forward"><code class="docutils literal notranslate"><span class="pre">AudioVAE.forward()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#models.AudioVAE.generate"><code class="docutils literal notranslate"><span class="pre">AudioVAE.generate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#models.AudioVAE.reparameterize"><code class="docutils literal notranslate"><span class="pre">AudioVAE.reparameterize()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#models.Circularize"><code class="docutils literal notranslate"><span class="pre">Circularize</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#models.Circularize.forward"><code class="docutils literal notranslate"><span class="pre">Circularize.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#models.EncDecBaseModel"><code class="docutils literal notranslate"><span class="pre">EncDecBaseModel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#models.EncDecBaseModel.forward"><code class="docutils literal notranslate"><span class="pre">EncDecBaseModel.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#models.M5"><code class="docutils literal notranslate"><span class="pre">M5</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#models.M5.forward"><code class="docutils literal notranslate"><span class="pre">M5.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#models.Pool"><code class="docutils literal notranslate"><span class="pre">Pool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#models.Pool.forward"><code class="docutils literal notranslate"><span class="pre">Pool.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#models.Scattering_Classifier"><code class="docutils literal notranslate"><span class="pre">Scattering_Classifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#models.Scattering_Classifier.forward"><code class="docutils literal notranslate"><span class="pre">Scattering_Classifier.forward()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="matchbox.html">matchbox package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugins.html">plugins package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">templates package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="web.html">web</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Sound-CL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">src</a></li>
+      <li class="breadcrumb-item active">models module</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-models">
+<span id="models-module"></span><h1>models module<a class="headerlink" href="#module-models" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="models.AudioVAE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">AudioVAE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imgChannels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">featureDim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15656</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zDim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#AudioVAE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.AudioVAE" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="models.AudioVAE.decoder">
+<span class="sig-name descname"><span class="pre">decoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#AudioVAE.decoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.AudioVAE.decoder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="models.AudioVAE.encoder">
+<span class="sig-name descname"><span class="pre">encoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#AudioVAE.encoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.AudioVAE.encoder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="models.AudioVAE.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#AudioVAE.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.AudioVAE.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="models.AudioVAE.generate">
+<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">condition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#AudioVAE.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.AudioVAE.generate" title="Permalink to this definition"></a></dt>
+<dd><p>Lets the generator sample random samples.
+Output is either a single sample or, if provided,
+a batch of samples of size “batch_size”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch_size</strong> – Number of samples to generate</p></li>
+<li><p><strong>condition</strong> – Possible condition for a condotional generator
+(e.g. a class label)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="models.AudioVAE.reparameterize">
+<span class="sig-name descname"><span class="pre">reparameterize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logVar</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#AudioVAE.reparameterize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.AudioVAE.reparameterize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="models.Circularize">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">Circularize</span></span><a class="reference internal" href="_modules/models.html#Circularize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Circularize" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="models.Circularize.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#Circularize.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Circularize.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="models.EncDecBaseModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">EncDecBaseModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_mels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_length</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#EncDecBaseModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.EncDecBaseModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Encoder decoder model for MatchboxNet from the paper : <a class="reference external" href="http://arxiv.org/abs/2004.08531">http://arxiv.org/abs/2004.08531</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_mels</strong> (<em>int</em>) – number of mel features in the mfcc transform preprocessing</p></li>
+<li><p><strong>final_filter</strong> (<em>int</em>) – size of final conv filter in the encoder</p></li>
+<li><p><strong>num_classes</strong> (<em>int</em>) – number of output classes for classification</p></li>
+<li><p><strong>input_length</strong> (<em>int</em>) – input time dimension length</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="models.EncDecBaseModel.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#EncDecBaseModel.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.EncDecBaseModel.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="models.M5">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">M5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_input</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">35</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#M5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.M5" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Basic M5 model from the paper <a class="reference external" href="https://arxiv.org/pdf/1610.00087.pdf">https://arxiv.org/pdf/1610.00087.pdf</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_input</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of inputs. Defaults to 1.</p></li>
+<li><p><strong>n_output</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of outputs. Defaults to 35.</p></li>
+<li><p><strong>stride</strong> (<em>int</em><em>, </em><em>optional</em>) – Convolution stride. Defaults to 16.</p></li>
+<li><p><strong>n_channel</strong> (<em>int</em><em>, </em><em>optional</em>) – Output channels of convolution layers. Defaults to 32.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="models.M5.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#M5.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.M5.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="models.Pool">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">Pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#Pool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Pool" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="models.Pool.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#Pool.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Pool.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="models.Scattering_Classifier">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">Scattering_Classifier</span></span><a class="reference internal" href="_modules/models.html#Scattering_Classifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Scattering_Classifier" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="models.Scattering_Classifier.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#Scattering_Classifier.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Scattering_Classifier.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="transforms.html" class="btn btn-neutral float-left" title="transforms module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="matchbox.html" class="btn btn-neutral float-right" title="matchbox package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Joe Khawand.
+      <span class="lastupdated">Last updated on Jun 06, 2023.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

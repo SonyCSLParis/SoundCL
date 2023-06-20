@@ -1,134 +1,125 @@
 <!DOCTYPE html>
-<html  lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-      <title>Overview: module code</title>
-    
-          <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-          <link rel="stylesheet" href="../_static/theme.css " type="text/css" />
-      
-      <!-- sphinx script_files -->
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overview: module code &mdash; Sound-CL 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
 
-      
-      <!-- bundled in js (rollup iife) -->
-      <!-- <script src="../_static/theme-vendors.js"></script> -->
-      <script src="../_static/theme.js" defer></script>
-    
-  <link rel="index" title="Index" href="../genindex.html" />
-  <link rel="search" title="Search" href="../search.html" /> 
-  </head>
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
 
-  <body>
-    <div id="app">
-    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
-  <router-link to="../index.html" class="home-link">
-    
-      <span class="site-name">Sound-CL</span>
-    
-  </router-link>
-
-  <div class="links">
-    <navlinks class="can-hide">
-
-
-
-    </navlinks>
-  </div>
-</navbar>
-
-      
-      <div class="sidebar-mask" @click="toggleSidebar(false)">
-      </div>
-        <sidebar @toggle-sidebar="toggleSidebar">
           
-          <navlinks>
-            
-
-
-
-            
-          </navlinks><div id="searchbox" class="searchbox" role="search">
-  <div class="caption"><span class="caption-text">Quick search</span>
-    <div class="searchformwrapper">
-      <form class="search" action="../search.html" method="get">
-        <input type="text" name="q" />
-        <input type="submit" value="Search" />
-        <input type="hidden" name="check_keywords" value="yes" />
-        <input type="hidden" name="area" value="default" />
-      </form>
-    </div>
-  </div>
-</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
-  
-    <div class="sidebar-group">
-      <p class="caption">
-        <span class="caption-text"><a href="../modules.html#src">src</a></span>
-      </p>
-      <ul class="">
-        
-          <li class="toctree-l1 ">
-            
-              <a href="../src.html" class="reference internal ">src package</a>
-            
-
-            
-          </li>
-
-        
-      </ul>
-    </div>
-  
+          
+          <a href="../index.html" class="icon icon-home">
+            Sound-CL
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
-        </sidebar>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../webtools.html">Webtools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">src</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web.html">web</a></li>
+</ul>
 
-      <page>
-          <div class="body-header" role="navigation" aria-label="navigation">
-  
-  <ul class="breadcrumbs">
-    <li><a href="../index.html">Docs</a> &raquo;</li>
-    
-    <li>Overview: module code</li>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sound-CL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Overview: module code</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
   </ul>
-  
-
-  <ul class="page-nav">
-</ul>
-  
+  <hr/>
 </div>
-<hr>
-          <div class="content" role="main" v-pre>
-            
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
   <h1>All modules for which code is available</h1>
-<ul><li><a href="src/dataset.html">src.dataset</a></li>
-<li><a href="src/infer.html">src.infer</a></li>
-<li><a href="src/main.html">src.main</a></li>
-<li><a href="src/matchbox/ConvASRDecoder.html">src.matchbox.ConvASRDecoder</a></li>
-<li><a href="src/matchbox/ConvASREncoder.html">src.matchbox.ConvASREncoder</a></li>
-<li><a href="src/matchbox/ConvBlock.html">src.matchbox.ConvBlock</a></li>
-<li><a href="src/matchbox/MaskedConv1d.html">src.matchbox.MaskedConv1d</a></li>
-<li><a href="src/models.html">src.models</a></li>
-<li><a href="src/plugins/ekfac_plugin.html">src.plugins.ekfac_plugin</a></li>
-<li><a href="src/plugins/natgrad/ekfac.html">src.plugins.natgrad.ekfac</a></li>
-<li><a href="src/plugins/natgrad/kfac.html">src.plugins.natgrad.kfac</a></li>
+<ul><li><a href="dataset.html">dataset</a></li>
+<li><a href="infer.html">infer</a></li>
+<li><a href="main.html">main</a></li>
+<li><a href="matchbox/ConvASRDecoder.html">matchbox.ConvASRDecoder</a></li>
+<li><a href="matchbox/ConvASREncoder.html">matchbox.ConvASREncoder</a></li>
+<li><a href="matchbox/ConvBlock.html">matchbox.ConvBlock</a></li>
+<li><a href="matchbox/MaskedConv1d.html">matchbox.MaskedConv1d</a></li>
+<li><a href="models.html">models</a></li>
+<li><a href="plugins/ekfac_plugin.html">plugins.ekfac_plugin</a></li>
+<li><a href="plugins/natgrad/ekfac.html">plugins.natgrad.ekfac</a></li>
+<li><a href="plugins/natgrad/kfac.html">plugins.natgrad.kfac</a></li>
+<li><a href="templates/river.html">templates.river</a></li>
+<li><a href="transforms.html">transforms</a></li>
 </ul>
 
+           </div>
           </div>
-          <div class="page-nav">
-            <div class="inner"><ul class="page-nav">
-</ul><div class="footer" role="contentinfo">
-      &#169; Copyright 2023, Joe Khawand.
-    <br>
-    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.1.3 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.8.0.
-</div>
-            </div>
-          </div>
-      </page>
-    </div></div>
-    
-    
-  </body>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Joe Khawand.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>

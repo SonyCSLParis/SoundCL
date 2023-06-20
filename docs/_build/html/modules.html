@@ -1,219 +1,165 @@
 <!DOCTYPE html>
-<html  lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-      <title>src</title>
-    
-          <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-          <link rel="stylesheet" href="_static/theme.css " type="text/css" />
-      
-      <!-- sphinx script_files -->
+    <meta property="article:modified_time" content="2023-06-12T14:52:12+02:00" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src &mdash; Sound-CL 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/clipboard.min.js"></script>
+        <script src="_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="main module" href="main.html" />
+    <link rel="prev" title="References" href="references.html" /> 
+</head>
 
-      
-      <!-- bundled in js (rollup iife) -->
-      <!-- <script src="_static/theme-vendors.js"></script> -->
-      <script src="_static/theme.js" defer></script>
-    
-  <link rel="index" title="Index" href="genindex.html" />
-  <link rel="search" title="Search" href="search.html" />
-  <link rel="next" title="src package" href="src.html" />
-  <link rel="prev" title="Welcome to Sound-CL’s documentation!" href="index.html" /> 
-  </head>
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
 
-  <body>
-    <div id="app">
-    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
-  <router-link to="index.html" class="home-link">
-    
-      <span class="site-name">Sound-CL</span>
-    
-  </router-link>
-
-  <div class="links">
-    <navlinks class="can-hide">
-
-
-
-    </navlinks>
-  </div>
-</navbar>
-
-      
-      <div class="sidebar-mask" @click="toggleSidebar(false)">
-      </div>
-        <sidebar @toggle-sidebar="toggleSidebar">
           
-          <navlinks>
-            
-
-
-
-            
-          </navlinks><div id="searchbox" class="searchbox" role="search">
-  <div class="caption"><span class="caption-text">Quick search</span>
-    <div class="searchformwrapper">
-      <form class="search" action="search.html" method="get">
-        <input type="text" name="q" />
-        <input type="submit" value="Search" />
-        <input type="hidden" name="check_keywords" value="yes" />
-        <input type="hidden" name="area" value="default" />
-      </form>
-    </div>
-  </div>
-</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
-  
-    <div class="sidebar-group">
-      <p class="caption">
-        <span class="caption-text"><a href="#src">src</a></span>
-      </p>
-      <ul class="">
-        
-          <li class="toctree-l1 ">
-            
-              <a href="src.html" class="reference internal ">src package</a>
-            
-
-            
-          </li>
-
-        
-      </ul>
-    </div>
-  
+          
+          <a href="index.html" class="icon icon-home">
+            Sound-CL
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
-        </sidebar>
-
-      <page>
-          <div class="body-header" role="navigation" aria-label="navigation">
-  
-  <ul class="breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-    
-    <li>src</li>
-  </ul>
-  
-
-  <ul class="page-nav">
-  <li class="prev">
-    <a href="index.html"
-       title="previous chapter">← Welcome to Sound-CL’s documentation!</a>
-  </li>
-  <li class="next">
-    <a href="src.html"
-       title="next chapter">src package →</a>
-  </li>
-</ul>
-  
-</div>
-<hr>
-          <div class="content" role="main" v-pre>
-            
-  <section id="src">
-<h1>src<a class="headerlink" href="#src" title="Permalink to this heading">¶</a></h1>
-<div class="toctree-wrapper compound">
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="src.html">src package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.matchbox.html">src.matchbox package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.matchbox.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.matchbox.html#module-src.matchbox.ConvASRDecoder">src.matchbox.ConvASRDecoder module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.matchbox.html#module-src.matchbox.ConvASREncoder">src.matchbox.ConvASREncoder module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.matchbox.html#module-src.matchbox.ConvBlock">src.matchbox.ConvBlock module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.matchbox.html#module-src.matchbox.MaskedConv1d">src.matchbox.MaskedConv1d module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.matchbox.html#module-src.matchbox">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webtools.html">Webtools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">src</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataset.html">dataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="infer.html">infer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html">transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html">models module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matchbox.html">matchbox package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugins.html">plugins package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">templates package</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="src.plugins.html">src.plugins package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.plugins.html#subpackages">Subpackages</a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.plugins.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.plugins.html#module-src.plugins.ekfac_plugin">src.plugins.ekfac_plugin module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.plugins.html#module-src.plugins">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web.html">web</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Sound-CL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">src</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="src">
+<h1>src<a class="headerlink" href="#src" title="Permalink to this heading"></a></h1>
+<p>The <cite>src</cite> folder contains all the scripts and modules used to train continual learning models using the Avalanche library.</p>
+<p>This folder is organized into the following distinct components:</p>
+<ul class="simple">
+<li><p><cite>main</cite>: The main script that runs the show, utilizing Avalanche and Sacred for logging.</p></li>
+<li><p><cite>dataset</cite>: Wrappers for datasets.</p></li>
+<li><p><cite>infer</cite>: A basic inference script for live testing the models.</p></li>
+<li><p><cite>transforms</cite>: Wrappers and PyTorch implementations of audio transformations.</p></li>
+<li><p><cite>models</cite>: A collection of different PyTorch models used for testing.</p></li>
+<li><p><cite>matchbox</cite>: An implementation of MatchboxNet in PyTorch.</p></li>
+<li><p><cite>plugins</cite>: Personalized Avalanche plugins used for training.</p></li>
+<li><p><cite>templates</cite>: Personalized Avalanche templates used for training.</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="main.html">main module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="main.html#main.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">dataset module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dataset.html#dataset.Audio_Dataset"><code class="docutils literal notranslate"><span class="pre">Audio_Dataset</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataset.html#dataset.CachedAudio"><code class="docutils literal notranslate"><span class="pre">CachedAudio</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataset.html#dataset.MLcommonsData"><code class="docutils literal notranslate"><span class="pre">MLcommonsData</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataset.html#dataset.SpeechCommandsData"><code class="docutils literal notranslate"><span class="pre">SpeechCommandsData</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataset.html#dataset.preprocess_and_save_dataset"><code class="docutils literal notranslate"><span class="pre">preprocess_and_save_dataset()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataset.html#dataset.speech_commands_collate"><code class="docutils literal notranslate"><span class="pre">speech_commands_collate()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="src.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.html#module-src.dataset">src.dataset module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.dataset.AddWhiteNoise"><code class="docutils literal notranslate"><span class="pre">AddWhiteNoise</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.dataset.AddWhiteNoise.forward"><code class="docutils literal notranslate"><span class="pre">AddWhiteNoise.forward()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="infer.html">infer module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="infer.html#infer.predict"><code class="docutils literal notranslate"><span class="pre">predict()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="infer.html#infer.record"><code class="docutils literal notranslate"><span class="pre">record()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.dataset.Audio_Dataset"><code class="docutils literal notranslate"><span class="pre">Audio_Dataset</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.dataset.Audio_Dataset.MLCommons"><code class="docutils literal notranslate"><span class="pre">Audio_Dataset.MLCommons()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.dataset.Audio_Dataset.SpeechCommands"><code class="docutils literal notranslate"><span class="pre">Audio_Dataset.SpeechCommands()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="transforms.html">transforms module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html#transforms.AddWhiteNoise"><code class="docutils literal notranslate"><span class="pre">AddWhiteNoise</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html#transforms.MfccTransform"><code class="docutils literal notranslate"><span class="pre">MfccTransform</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html#transforms.Scattering"><code class="docutils literal notranslate"><span class="pre">Scattering</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html#transforms.SpecAugment"><code class="docutils literal notranslate"><span class="pre">SpecAugment</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.dataset.CachedAudio"><code class="docutils literal notranslate"><span class="pre">CachedAudio</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.dataset.MLcommonsData"><code class="docutils literal notranslate"><span class="pre">MLcommonsData</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.dataset.MLcommonsData.get_metadata"><code class="docutils literal notranslate"><span class="pre">MLcommonsData.get_metadata()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">models module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models.html#models.AudioVAE"><code class="docutils literal notranslate"><span class="pre">AudioVAE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#models.Circularize"><code class="docutils literal notranslate"><span class="pre">Circularize</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#models.EncDecBaseModel"><code class="docutils literal notranslate"><span class="pre">EncDecBaseModel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#models.M5"><code class="docutils literal notranslate"><span class="pre">M5</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#models.Pool"><code class="docutils literal notranslate"><span class="pre">Pool</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#models.Scattering_Classifier"><code class="docutils literal notranslate"><span class="pre">Scattering_Classifier</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.dataset.MfccTransform"><code class="docutils literal notranslate"><span class="pre">MfccTransform</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.dataset.MfccTransform.forward"><code class="docutils literal notranslate"><span class="pre">MfccTransform.forward()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="matchbox.html">matchbox package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="matchbox.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matchbox.html#module-matchbox.ConvASRDecoder">matchbox.ConvASRDecoder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matchbox.html#module-matchbox.ConvASREncoder">matchbox.ConvASREncoder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matchbox.html#module-matchbox.ConvBlock">matchbox.ConvBlock module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matchbox.html#module-matchbox.MaskedConv1d">matchbox.MaskedConv1d module</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.dataset.Scattering"><code class="docutils literal notranslate"><span class="pre">Scattering</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.dataset.Scattering.forward"><code class="docutils literal notranslate"><span class="pre">Scattering.forward()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">plugins package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plugins.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugins.html#submodules">Submodules</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.dataset.SpecAugment"><code class="docutils literal notranslate"><span class="pre">SpecAugment</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.dataset.SpecAugment.forward"><code class="docutils literal notranslate"><span class="pre">SpecAugment.forward()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.dataset.SpeechCommandsData"><code class="docutils literal notranslate"><span class="pre">SpeechCommandsData</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.dataset.add_white_noise"><code class="docutils literal notranslate"><span class="pre">add_white_noise()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.dataset.mfcc_transform"><code class="docutils literal notranslate"><span class="pre">mfcc_transform()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.dataset.preprocess_and_save_dataset"><code class="docutils literal notranslate"><span class="pre">preprocess_and_save_dataset()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.dataset.spec_aug"><code class="docutils literal notranslate"><span class="pre">spec_aug()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.dataset.speech_commands_collate"><code class="docutils literal notranslate"><span class="pre">speech_commands_collate()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="src.html#module-src.infer">src.infer module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.infer.predict"><code class="docutils literal notranslate"><span class="pre">predict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.infer.record"><code class="docutils literal notranslate"><span class="pre">record()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="src.html#module-src.main">src.main module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.main.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="src.html#module-src.models">src.models module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.AudioVAE"><code class="docutils literal notranslate"><span class="pre">AudioVAE</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.AudioVAE.decoder"><code class="docutils literal notranslate"><span class="pre">AudioVAE.decoder()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.AudioVAE.encoder"><code class="docutils literal notranslate"><span class="pre">AudioVAE.encoder()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.AudioVAE.forward"><code class="docutils literal notranslate"><span class="pre">AudioVAE.forward()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.AudioVAE.generate"><code class="docutils literal notranslate"><span class="pre">AudioVAE.generate()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.AudioVAE.reparameterize"><code class="docutils literal notranslate"><span class="pre">AudioVAE.reparameterize()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.Circularize"><code class="docutils literal notranslate"><span class="pre">Circularize</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Circularize.forward"><code class="docutils literal notranslate"><span class="pre">Circularize.forward()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.EncDecBaseModel"><code class="docutils literal notranslate"><span class="pre">EncDecBaseModel</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.EncDecBaseModel.forward"><code class="docutils literal notranslate"><span class="pre">EncDecBaseModel.forward()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.M5"><code class="docutils literal notranslate"><span class="pre">M5</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.M5.forward"><code class="docutils literal notranslate"><span class="pre">M5.forward()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.Pool"><code class="docutils literal notranslate"><span class="pre">Pool</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Pool.forward"><code class="docutils literal notranslate"><span class="pre">Pool.forward()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.Scattering_Classifier"><code class="docutils literal notranslate"><span class="pre">Scattering_Classifier</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Scattering_Classifier.forward"><code class="docutils literal notranslate"><span class="pre">Scattering_Classifier.forward()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="src.html#module-src">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="templates.html">templates package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="templates.html#submodules">Submodules</a></li>
 </ul>
 </li>
 </ul>
@@ -221,27 +167,36 @@
 </section>
 
 
+           </div>
           </div>
-          <div class="page-nav">
-            <div class="inner"><ul class="page-nav">
-  <li class="prev">
-    <a href="index.html"
-       title="previous chapter">← Welcome to Sound-CL’s documentation!</a>
-  </li>
-  <li class="next">
-    <a href="src.html"
-       title="next chapter">src package →</a>
-  </li>
-</ul><div class="footer" role="contentinfo">
-      &#169; Copyright 2023, Joe Khawand.
-    <br>
-    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.1.3 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.8.0.
-</div>
-            </div>
-          </div>
-      </page>
-    </div></div>
-    
-    
-  </body>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="references.html" class="btn btn-neutral float-left" title="References" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="main.html" class="btn btn-neutral float-right" title="main module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Joe Khawand.
+      <span class="lastupdated">Last updated on Jun 12, 2023.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>

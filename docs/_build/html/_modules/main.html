@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>main &mdash; Sound-CL 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Sound-CL
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../webtools.html">Webtools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">src</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web.html">web</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sound-CL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">main</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for main</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dataset</span> <span class="kn">import</span> <span class="n">Audio_Dataset</span>
+<span class="kn">from</span> <span class="nn">transforms</span> <span class="kn">import</span> <span class="n">Scattering</span>
+
+<span class="kn">from</span> <span class="nn">avalanche.logging</span> <span class="kn">import</span> <span class="n">InteractiveLogger</span><span class="p">,</span> <span class="n">TextLogger</span><span class="p">,</span> <span class="n">TensorboardLogger</span>
+<span class="kn">from</span> <span class="nn">avalanche.training.plugins</span> <span class="kn">import</span> <span class="n">EvaluationPlugin</span><span class="p">,</span><span class="n">EarlyStoppingPlugin</span><span class="p">,</span><span class="n">GenerativeReplayPlugin</span><span class="p">,</span><span class="n">LwFPlugin</span><span class="p">,</span><span class="n">ReplayPlugin</span><span class="p">,</span><span class="n">LRSchedulerPlugin</span><span class="p">,</span><span class="n">SynapticIntelligencePlugin</span><span class="p">,</span><span class="n">GDumbPlugin</span><span class="p">,</span><span class="n">CoPEPlugin</span><span class="p">,</span><span class="n">AGEMPlugin</span>
+<span class="kn">from</span> <span class="nn">avalanche.benchmarks.generators</span> <span class="kn">import</span> <span class="n">nc_benchmark</span>
+<span class="kn">from</span> <span class="nn">avalanche.evaluation.metrics</span> <span class="kn">import</span> <span class="n">forgetting_metrics</span><span class="p">,</span> <span class="n">accuracy_metrics</span><span class="p">,</span><span class="n">loss_metrics</span><span class="p">,</span> <span class="n">timing_metrics</span><span class="p">,</span> <span class="n">cpu_usage_metrics</span><span class="p">,</span> <span class="n">confusion_matrix_metrics</span><span class="p">,</span> <span class="n">gpu_usage_metrics</span>
+<span class="kn">from</span> <span class="nn">avalanche.training.templates</span> <span class="kn">import</span> <span class="n">SupervisedTemplate</span>
+<span class="kn">from</span> <span class="nn">avalanche.training</span> <span class="kn">import</span> <span class="n">JointTraining</span><span class="p">,</span><span class="n">Naive</span><span class="p">,</span><span class="n">OnlineNaive</span>
+<span class="kn">from</span> <span class="nn">avalanche.training.supervised</span> <span class="kn">import</span> <span class="n">StreamingLDA</span>
+<span class="kn">from</span> <span class="nn">avalanche.benchmarks.scenarios</span> <span class="kn">import</span> <span class="n">OnlineCLScenario</span>
+
+<span class="kn">from</span> <span class="nn">plugins.ekfac_plugin</span> <span class="kn">import</span> <span class="n">EKFAC_Plugin</span><span class="p">,</span><span class="n">KFAC_Plugin</span>
+
+<span class="kn">from</span> <span class="nn">nemo.core.optim.optimizers</span> <span class="kn">import</span> <span class="n">Novograd</span>
+
+<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">CrossEntropyLoss</span><span class="p">,</span><span class="n">NLLLoss</span>
+<span class="kn">from</span> <span class="nn">torch.optim</span> <span class="kn">import</span> <span class="n">SGD</span><span class="p">,</span><span class="n">Adam</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">import</span> <span class="nn">models</span>
+<span class="kn">from</span> <span class="nn">matchbox.ConvASRDecoder</span> <span class="kn">import</span> <span class="n">ConvASRDecoderClassification</span>
+
+<span class="kn">from</span> <span class="nn">sacred</span> <span class="kn">import</span> <span class="n">Experiment</span>
+<span class="kn">from</span> <span class="nn">sacred.observers</span> <span class="kn">import</span> <span class="n">MongoObserver</span>
+
+<span class="kn">from</span> <span class="nn">tensorflow.core.util</span> <span class="kn">import</span> <span class="n">event_pb2</span> <span class="c1"># Used to interface with</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>                    <span class="c1"># tensorboard logs</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sn</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">templates.river</span> <span class="kn">import</span> <span class="n">RiverTemplate</span>
+<span class="kn">from</span> <span class="nn">river.forest</span> <span class="kn">import</span> <span class="n">ARFClassifier</span>
+
+<span class="kn">from</span> <span class="nn">s_trees.utils.cls_utils</span> <span class="kn">import</span> <span class="n">HTtoRIVER</span>
+<span class="kn">from</span> <span class="nn">s_trees.learners.ht</span> <span class="kn">import</span> <span class="n">HoeffdingTree</span>
+<span class="kn">from</span> <span class="nn">s_trees.learners.irf</span> <span class="kn">import</span> <span class="n">IncrementalRandomForest</span>
+
+<span class="c1">#Setting up the experiment</span>
+<span class="n">ex</span><span class="o">=</span><span class="n">Experiment</span><span class="p">(</span><span class="s1">&#39;Online replay&#39;</span><span class="p">)</span>
+<span class="n">ex</span><span class="o">.</span><span class="n">observers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MongoObserver</span><span class="p">(</span><span class="n">db_name</span><span class="o">=</span><span class="s1">&#39;Continual-learning&#39;</span><span class="p">))</span>
+
+<span class="nd">@ex</span><span class="o">.</span><span class="n">config</span>
+<span class="k">def</span> <span class="nf">cfg</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Config function for efficient config saving in sacred</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+    <span class="n">opt_type</span><span class="o">=</span><span class="s1">&#39;adam&#39;</span>
+    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.001</span>
+    <span class="n">train_batch_size</span><span class="o">=</span><span class="mi">128</span>
+    <span class="n">eval_batch_size</span><span class="o">=</span><span class="mi">128</span>
+    <span class="n">train_epochs</span><span class="o">=</span><span class="mi">1</span>
+    <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span>
+    <span class="n">w_decay</span><span class="o">=</span><span class="mf">0.001</span>
+    <span class="n">betas</span><span class="o">=</span><span class="p">[</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">2</span>
+    <span class="n">PolynomialHoldDecayAnnealing_schedule</span><span class="o">=</span><span class="kc">False</span>
+    <span class="n">tags</span> <span class="o">=</span> <span class="p">[]</span><span class="c1">#&quot;Regularization&quot;,&quot;MatchboxNet&quot;,&quot;M5&quot;,&quot;Joint&quot;,&quot;Naive&quot;,&quot;Replay&quot;,&quot;Combined&quot;,&quot;Architectural&quot;]#to choose from in Omniboard</span>
+    <span class="n">save_model</span><span class="o">=</span><span class="kc">True</span>
+
+
+
+<div class="viewcode-block" id="run"><a class="viewcode-back" href="../main.html#main.run">[docs]</a><span class="nd">@ex</span><span class="o">.</span><span class="n">automain</span>
+<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">device</span><span class="p">,</span><span class="n">opt_type</span><span class="p">,</span><span class="n">learning_rate</span><span class="p">,</span><span class="n">train_batch_size</span><span class="p">,</span><span class="n">eval_batch_size</span><span class="p">,</span><span class="n">train_epochs</span><span class="p">,</span><span class="n">momentum</span><span class="p">,</span><span class="n">w_decay</span><span class="p">,</span><span class="n">betas</span><span class="p">,</span><span class="n">save_model</span><span class="p">,</span><span class="n">_seed</span><span class="p">,</span><span class="n">_run</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Main function of the continual learning framework. This uses `Avalanche lib &lt;https://avalanche.continualai.org/&gt;`_ to create continual learning scenarios.</span>
+
+<span class="sd">    Summary:</span>
+<span class="sd">        This library uses multiple main concepts to enable continual learning with pytorch :</span>
+<span class="sd">        </span>
+<span class="sd">        - Templates :</span>
+<span class="sd">        - Scenarios :</span>
+<span class="sd">        - Plugins :</span>
+<span class="sd">        - Abstractions :</span>
+
+<span class="sd">        For more detailed information about the use of this library check out their main `website &lt;https://avalanche.continualai.org/&gt;`_ and their `API &lt;https://avalanche-api.continualai.org/en/v0.3.1/&gt;`_</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        opt_type (str): Optimizer type</span>
+<span class="sd">        learning_rate (float): Learning rate</span>
+<span class="sd">        train_batch_size (int): Train mini batch size</span>
+<span class="sd">        eval_batch_size (int): Eval mini batch size</span>
+<span class="sd">        train_epochs (int): Number of training epochs on each experience</span>
+<span class="sd">        momentum (float): Momentum value in optimizer</span>
+<span class="sd">        PolynomialHoldDecayAnnealing_schedule (bool): Enable or not the learning rate scheduler</span>
+<span class="sd">        save_model(bool): Save model as artifact or not</span>
+<span class="sd">        _seed (int): Random seed generated by the sacred experiment. This seed is common to all the used libraries capable of randomness</span>
+<span class="sd">        _run : Sacred runtime environment</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int: Top1 average accuracy on eval stream.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#Import dataset</span>
+    <span class="n">DATASET</span><span class="o">=</span><span class="n">Audio_Dataset</span><span class="p">(</span><span class="n">train_transformation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">test_transformation</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">command_train</span><span class="o">=</span><span class="n">DATASET</span><span class="p">(</span><span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">pre_process</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">command_test</span> <span class="o">=</span><span class="n">DATASET</span><span class="p">(</span><span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">pre_process</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1">#command_train=DATASET.MLCommons(sub_folder=&quot;subset2&quot;,subset=&#39;training&#39;)</span>
+    <span class="c1">#command_test=DATASET.MLCommons(sub_folder=&quot;subset2&quot;,subset=&#39;testing&#39;)</span>
+    
+    <span class="c1"># Create Scenario</span>
+    <span class="n">scenario</span> <span class="o">=</span> <span class="n">nc_benchmark</span><span class="p">(</span><span class="n">command_train</span><span class="p">,</span> <span class="n">command_test</span><span class="p">,</span> <span class="n">n_experiences</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">_seed</span><span class="p">,</span><span class="n">task_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Choose Model from available models:</span>
+<span class="sd">        Scattering : torch.nn.Sequential( Scattering(),models.EncDecBaseModel(num_mels=50,num_classes=35,final_filter=128,input_length=1000))</span>
+<span class="sd">        MFCC       : models.EncDecBaseModel(num_mels=64,num_classes=35,final_filter=128,input_length=1601)</span>
+<span class="sd">        Basic net  : M5(n_input=1,n_channel=35)</span>
+
+<span class="sd">    NB: check the pre-processing before using model</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pretrained</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span> <span class="n">Scattering</span><span class="p">(),</span><span class="n">models</span><span class="o">.</span><span class="n">EncDecBaseModel</span><span class="p">(</span><span class="n">num_mels</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span><span class="n">final_filter</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span><span class="n">input_length</span><span class="o">=</span><span class="mi">1000</span><span class="p">))</span>
+    <span class="n">pretrained</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;./pre_training/models/pretrained2.pt&#39;</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">pretrained</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+        <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">feature_extractor</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span> <span class="n">pretrained</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">pretrained</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">encoder</span><span class="p">,</span><span class="n">models</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="mi">128</span><span class="p">))</span>
+    <span class="n">model</span><span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span><span class="mi">35</span><span class="p">)</span>
+
+    <span class="c1"># Setup Logging</span>
+
+    <span class="c1">## log to Tensorboard</span>
+    <span class="n">tb_logger</span> <span class="o">=</span> <span class="n">TensorboardLogger</span><span class="p">(</span><span class="n">tb_log_dir</span><span class="o">=</span><span class="s1">&#39;../tb_data&#39;</span><span class="p">)</span>
+
+    <span class="c1">## log to text file</span>
+    <span class="n">text_logger</span> <span class="o">=</span> <span class="n">TextLogger</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../log.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">))</span>
+
+    <span class="c1">## print to stdout</span>
+    <span class="n">interactive_logger</span> <span class="o">=</span> <span class="n">InteractiveLogger</span><span class="p">()</span>
+
+    <span class="n">eval_plugin</span> <span class="o">=</span> <span class="n">EvaluationPlugin</span><span class="p">(</span>
+        <span class="n">accuracy_metrics</span><span class="p">(</span><span class="n">minibatch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">experience</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">loss_metrics</span><span class="p">(</span><span class="n">minibatch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">experience</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">timing_metrics</span><span class="p">(</span><span class="n">epoch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">epoch_running</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">forgetting_metrics</span><span class="p">(</span><span class="n">experience</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">cpu_usage_metrics</span><span class="p">(</span><span class="n">experience</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">confusion_matrix_metrics</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="n">scenario</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">save_image</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">gpu_usage_metrics</span><span class="p">(</span><span class="n">gpu_id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">minibatch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">experience</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">loggers</span><span class="o">=</span><span class="p">[</span><span class="n">interactive_logger</span><span class="p">,</span> <span class="n">text_logger</span><span class="p">,</span> <span class="n">tb_logger</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Initialize the optimizer</span>
+    <span class="k">if</span> <span class="n">opt_type</span> <span class="o">==</span> <span class="s1">&#39;sgd&#39;</span><span class="p">:</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span><span class="n">lr</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="n">momentum</span><span class="p">,</span><span class="n">weight_decay</span><span class="o">=</span><span class="n">w_decay</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">opt_type</span> <span class="o">==</span> <span class="s1">&#39;adam&#39;</span><span class="p">:</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span><span class="n">lr</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span><span class="n">betas</span><span class="o">=</span><span class="n">betas</span><span class="p">,</span><span class="n">weight_decay</span><span class="o">=</span><span class="n">w_decay</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">opt_type</span> <span class="o">==</span> <span class="s1">&#39;novograd&#39;</span><span class="p">:</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">Novograd</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span><span class="n">lr</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span><span class="n">betas</span><span class="o">=</span><span class="n">betas</span><span class="p">,</span><span class="n">weight_decay</span><span class="o">=</span><span class="n">w_decay</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;This type of optimizer is not implemented, defaulting to ADAM&quot;</span><span class="p">)</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span><span class="n">weight_decay</span><span class="o">=</span><span class="n">w_decay</span><span class="p">,</span><span class="n">betas</span><span class="o">=</span><span class="n">betas</span><span class="p">)</span>
+        
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialise plugin list</span>
+
+<span class="sd">    Here are some examples:</span>
+<span class="sd">        Lr scheduler    : LRSchedulerPlugin(PolynomialHoldDecayAnnealing(optimizer=optimizer,power=2.0,max_steps=(int(command_train.__len__()/train_batch_size)+1)*train_epochs,min_lr=0.000001,last_epoch=-1,warmup_ratio=0.05,hold_ratio=0.45))</span>
+<span class="sd">        Replay          : ReplayPlugin(mem_size=50)</span>
+<span class="sd">        Regularization  : SynapticIntelligencePlugin</span>
+<span class="sd">        Pseudo Replay   : GenerativeReplayPlugin() </span>
+
+<span class="sd">    NB: we can add multiple plugins to the same strategy</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">scheduler</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="o">.</span><span class="n">SequentialLR</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+                                                    <span class="n">schedulers</span><span class="o">=</span><span class="p">[</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="o">.</span><span class="n">ConstantLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">total_iters</span><span class="o">=</span><span class="nb">int</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">command_train</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span><span class="o">/</span><span class="n">train_batch_size</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">train_epochs</span><span class="o">*</span><span class="mf">0.4</span><span class="p">)),</span>
+                                                                 <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="o">.</span><span class="n">PolynomialLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">total_iters</span><span class="o">=</span><span class="nb">int</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">command_train</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span><span class="o">/</span><span class="n">train_batch_size</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">train_epochs</span><span class="o">*</span><span class="mf">0.6</span><span class="p">),</span> <span class="n">power</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">last_epoch</span><span class="o">=-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)],</span>
+                                                    <span class="n">milestones</span><span class="o">=</span><span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">command_train</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span><span class="o">/</span><span class="n">train_batch_size</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">train_epochs</span><span class="o">*</span><span class="mf">0.4</span><span class="p">)])</span>
+
+    <span class="n">plugin_list</span><span class="o">=</span><span class="p">[</span><span class="n">ReplayPlugin</span><span class="p">(</span><span class="n">mem_size</span><span class="o">=</span><span class="mi">200</span><span class="p">)]</span><span class="c1">#LRSchedulerPlugin(scheduler=scheduler,step_granularity=&quot;iteration&quot;),</span>
+                <span class="c1">#EKFAC_Plugin(network=model)]    </span>
+        
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">      Choose the continual learning startegy.</span>
+
+<span class="sd">      Here are some examples:</span>
+<span class="sd">        Joint training      : JointTraining(model, optimizer,CrossEntropyLoss(), train_mb_size=train_batch_size, eval_mb_size=eval_batch_size,device=device,train_epochs=train_epochs,evaluator=eval_plugin,plugins=plugin_list)</span>
+<span class="sd">        Naive               : Naive()</span>
+<span class="sd">        Supervised Template : SupervisedTemplate(model, optimizer,CrossEntropyLoss(), train_mb_size=train_batch_size, eval_mb_size=eval_batch_size,device=device,train_epochs=train_epochs,evaluator=eval_plugin,plugins=plugin_list)</span>
+<span class="sd">        Streaming LDA       : StreamingLDA(slda_model= model,criterion= CrossEntropyLoss(),input_size=128,num_classes= 35,evaluator=eval_plugin,plugins=plugin_list, device=device,eval_mb_size=eval_batch_size,train_mb_size=train_batch_size)</span>
+<span class="sd">        Online Naive        : OnlineNaive(model=model,optimizer=optimizer,criterion=CrossEntropyLoss(),train_mb_size=train_batch_size,eval_mb_size=eval_batch_size,device=device,plugins=plugin_list,evaluator=eval_plugin,eval_every=-1)</span>
+<span class="sd">        River Template      : RiverTemplate(deep_model=model,online_model=HTtoRIVER(classifier=IncrementalRandomForest(size=10, num_workers=15, att_split_est=True)),criterion=None,input_size=128,train_mb_size=train_batch_size,eval_mb_size=eval_batch_size,device=device,evaluator=EvaluationPlugin(loggers=[interactive_logger, text_logger, tb_logger]))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cl_strategy</span><span class="o">=</span> <span class="n">OnlineNaive</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span><span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span><span class="n">criterion</span><span class="o">=</span><span class="n">CrossEntropyLoss</span><span class="p">(),</span><span class="n">train_mb_size</span><span class="o">=</span><span class="n">train_batch_size</span><span class="p">,</span><span class="n">eval_mb_size</span><span class="o">=</span><span class="n">eval_batch_size</span><span class="p">,</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span><span class="n">plugins</span><span class="o">=</span><span class="n">plugin_list</span><span class="p">,</span><span class="n">evaluator</span><span class="o">=</span><span class="n">eval_plugin</span><span class="p">,</span><span class="n">eval_every</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1">#Training loop</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Starting experiment...&#39;</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Check if the user requested Joint training, Online training, or regular Supervised Template</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cl_strategy</span><span class="p">,</span><span class="n">JointTraining</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Start of joint training: &quot;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">cl_strategy</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">scenario</span><span class="o">.</span><span class="n">train_stream</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Training completed&#39;</span><span class="p">)</span>
+        <span class="c1"># eval </span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Start of Eval&#39;</span><span class="p">)</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cl_strategy</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">scenario</span><span class="o">.</span><span class="n">test_stream</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;End of Eval&#39;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cl_strategy</span><span class="p">,</span><span class="n">OnlineNaive</span><span class="p">):</span>
+        <span class="n">batch_streams</span><span class="o">=</span> <span class="n">scenario</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">experience</span> <span class="ow">in</span> <span class="n">scenario</span><span class="o">.</span><span class="n">train_stream</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Start of Online experience: &quot;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">experience</span><span class="o">.</span><span class="n">current_experience</span><span class="p">))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Current Classes: &quot;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">experience</span><span class="o">.</span><span class="n">classes_in_this_experience</span><span class="p">))</span>
+
+            <span class="n">ocl_scenario</span> <span class="o">=</span> <span class="n">OnlineCLScenario</span><span class="p">(</span>
+                <span class="n">original_streams</span><span class="o">=</span><span class="n">batch_streams</span><span class="p">,</span>
+                <span class="n">experiences</span><span class="o">=</span><span class="n">experience</span><span class="p">,</span>
+                <span class="n">experience_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">access_task_boundaries</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">cl_strategy</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">ocl_scenario</span><span class="o">.</span><span class="n">train_stream</span><span class="p">)</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Online training completed&#39;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Start of Eval&#39;</span><span class="p">)</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cl_strategy</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">scenario</span><span class="o">.</span><span class="n">test_stream</span><span class="p">))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;End of Eval&#39;</span><span class="p">)</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">experience</span> <span class="ow">in</span> <span class="n">scenario</span><span class="o">.</span><span class="n">train_stream</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Start of experience: &quot;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">experience</span><span class="o">.</span><span class="n">current_experience</span><span class="p">))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Current Classes: &quot;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">experience</span><span class="o">.</span><span class="n">classes_in_this_experience</span><span class="p">))</span>
+
+            <span class="c1"># train returns a dictionary which contains all the metric values</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">cl_strategy</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">experience</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Training completed&#39;</span><span class="p">)</span>
+
+            <span class="c1"># eval </span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Start of Eval&#39;</span><span class="p">)</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cl_strategy</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">scenario</span><span class="o">.</span><span class="n">test_stream</span><span class="p">))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;End of Eval&#39;</span><span class="p">)</span>
+
+
+    <span class="c1"># Logging metrics and artifacts into sacred</span>
+
+    <span class="n">cf_matrix</span><span class="o">=</span><span class="n">results</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;ConfusionMatrix_Stream/eval_phase/test_stream&#39;</span><span class="p">]</span>
+    <span class="n">df_cm</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">cf_matrix</span><span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">cf_matrix</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">DATASET</span><span class="o">.</span><span class="n">labels_names</span><span class="p">],</span>
+                    <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">DATASET</span><span class="o">.</span><span class="n">labels_names</span><span class="p">])</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">24</span><span class="p">,</span><span class="mi">14</span><span class="p">))</span>
+    <span class="n">sn</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">df_cm</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;heatmap.png&#39;</span><span class="p">)</span><span class="c1">#figure size doesnt work</span>
+    <span class="n">_run</span><span class="o">.</span><span class="n">add_artifact</span><span class="p">(</span><span class="s1">&#39;./heatmap.png&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;./heatmap.png&#39;</span><span class="p">)</span>
+
+    <span class="c1">## Save the model as an artifact</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">save_model</span><span class="p">):</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;../models/&#39;</span><span class="p">,</span><span class="s1">&#39;model.pt&#39;</span><span class="p">))</span>
+        <span class="n">_run</span><span class="o">.</span><span class="n">add_artifact</span><span class="p">(</span><span class="s1">&#39;../models/model.pt&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;../models/model.pt&#39;</span><span class="p">)</span>
+
+    <span class="c1">## The save process in tensorboard in multithreaded, we add this sleep to make sure that the file was saved before accessing it</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span> 
+
+    <span class="c1">## Getting the latest file added to ./tb_data</span>
+    <span class="n">list_of_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;../tb_data/*&#39;</span><span class="p">)</span>
+    <span class="n">latest_file</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">list_of_files</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getctime</span><span class="p">)</span>
+
+    <span class="c1">## Saving the tensorboard data in sacred</span>
+    <span class="n">_run</span><span class="o">.</span><span class="n">add_artifact</span><span class="p">(</span><span class="n">latest_file</span><span class="p">)</span><span class="c1"># Add raw tf record file to sacred</span>
+    <span class="n">_run</span><span class="o">.</span><span class="n">add_artifact</span><span class="p">(</span><span class="s1">&#39;../log.txt&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;../log.txt&#39;</span><span class="p">)</span>
+    
+    <span class="n">serialized_examples</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TFRecordDataset</span><span class="p">(</span><span class="n">latest_file</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">serialized_example</span> <span class="ow">in</span> <span class="n">serialized_examples</span><span class="p">:</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">event_pb2</span><span class="o">.</span><span class="n">Event</span><span class="o">.</span><span class="n">FromString</span><span class="p">(</span><span class="n">serialized_example</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="n">_run</span><span class="o">.</span><span class="n">log_scalar</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">simple_value</span><span class="p">)</span>
+
+    <span class="c1"># We give the average accuracy as the result. The other metrics can be found in Omniboard</span>
+    <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;Top1_Acc_Stream/eval_phase/test_stream/Task000&#39;</span><span class="p">]</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Joe Khawand.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

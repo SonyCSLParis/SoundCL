@@ -6,11 +6,26 @@
 Welcome to Sound-CL's documentation!
 ====================================
 
+Add description
+
+Getting Started
+===============
+Head to the getting started section for a quick overview of the used libraires and how everything runs.
+
+.. toctree::
+  :caption: Getting started:
+  :hidden:
+
+  overview
+  webtools
+  references
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    modules
+   web
 
 
 Indices and tables
@@ -19,3 +34,7 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+.. attention::
+   This repository is under heavy developement.
+
