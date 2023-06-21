@@ -128,7 +128,7 @@
 <span class="kn">from</span> <span class="nn">s_trees.learners.irf</span> <span class="kn">import</span> <span class="n">IncrementalRandomForest</span>
 
 <span class="c1">#Setting up the experiment</span>
-<span class="n">ex</span><span class="o">=</span><span class="n">Experiment</span><span class="p">(</span><span class="s1">&#39;Online replay&#39;</span><span class="p">)</span>
+<span class="n">ex</span><span class="o">=</span><span class="n">Experiment</span><span class="p">(</span><span class="s1">&#39;Online cached replay&#39;</span><span class="p">)</span>
 <span class="n">ex</span><span class="o">.</span><span class="n">observers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MongoObserver</span><span class="p">(</span><span class="n">db_name</span><span class="o">=</span><span class="s1">&#39;Continual-learning&#39;</span><span class="p">))</span>
 
 <span class="nd">@ex</span><span class="o">.</span><span class="n">config</span>
@@ -181,17 +181,6 @@
 <span class="sd">        int: Top1 average accuracy on eval stream.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1">#Import dataset</span>
-    <span class="n">DATASET</span><span class="o">=</span><span class="n">Audio_Dataset</span><span class="p">(</span><span class="n">train_transformation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">test_transformation</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-
-    <span class="n">command_train</span><span class="o">=</span><span class="n">DATASET</span><span class="p">(</span><span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">pre_process</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">command_test</span> <span class="o">=</span><span class="n">DATASET</span><span class="p">(</span><span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">pre_process</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="c1">#command_train=DATASET.MLCommons(sub_folder=&quot;subset2&quot;,subset=&#39;training&#39;)</span>
-    <span class="c1">#command_test=DATASET.MLCommons(sub_folder=&quot;subset2&quot;,subset=&#39;testing&#39;)</span>
-    
-    <span class="c1"># Create Scenario</span>
-    <span class="n">scenario</span> <span class="o">=</span> <span class="n">nc_benchmark</span><span class="p">(</span><span class="n">command_train</span><span class="p">,</span> <span class="n">command_test</span><span class="p">,</span> <span class="n">n_experiences</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">_seed</span><span class="p">,</span><span class="n">task_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Choose Model from available models:</span>
 <span class="sd">        Scattering : torch.nn.Sequential( Scattering(),models.EncDecBaseModel(num_mels=50,num_classes=35,final_filter=128,input_length=1000))</span>
@@ -207,6 +196,17 @@
 
     <span class="n">feature_extractor</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span> <span class="n">pretrained</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">pretrained</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">encoder</span><span class="p">,</span><span class="n">models</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="mi">128</span><span class="p">))</span>
     <span class="n">model</span><span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span><span class="mi">35</span><span class="p">)</span>
+
+    <span class="c1">#Import dataset</span>
+    <span class="n">DATASET</span><span class="o">=</span><span class="n">Audio_Dataset</span><span class="p">(</span><span class="n">train_transformation</span><span class="o">=</span><span class="n">feature_extractor</span><span class="p">,</span><span class="n">test_transformation</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">command_train</span><span class="o">=</span><span class="n">DATASET</span><span class="p">(</span><span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">pre_process</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">output_shape</span><span class="o">=</span><span class="p">[</span><span class="mi">128</span><span class="p">])</span>
+    <span class="n">command_test</span> <span class="o">=</span><span class="n">DATASET</span><span class="p">(</span><span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">pre_process</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">output_shape</span><span class="o">=</span><span class="p">[</span><span class="mi">128</span><span class="p">])</span>
+    <span class="c1">#command_train=DATASET.MLCommons(sub_folder=&quot;subset2&quot;,subset=&#39;training&#39;)</span>
+    <span class="c1">#command_test=DATASET.MLCommons(sub_folder=&quot;subset2&quot;,subset=&#39;testing&#39;)</span>
+    
+    <span class="c1"># Create Scenario</span>
+    <span class="n">scenario</span> <span class="o">=</span> <span class="n">nc_benchmark</span><span class="p">(</span><span class="n">command_train</span><span class="p">,</span> <span class="n">command_test</span><span class="p">,</span> <span class="n">n_experiences</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">_seed</span><span class="p">,</span><span class="n">task_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="c1"># Setup Logging</span>
 

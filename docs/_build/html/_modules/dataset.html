@@ -146,7 +146,7 @@
         <span class="k">return</span> <span class="n">tensors</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">t_labels</span><span class="c1"># Fix for convolution.permute(0,2,1)</span></div>
 
 <div class="viewcode-block" id="preprocess_and_save_dataset"><a class="viewcode-back" href="../dataset.html#dataset.preprocess_and_save_dataset">[docs]</a><span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
-<span class="k">def</span> <span class="nf">preprocess_and_save_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">save_path</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span><span class="n">transformation</span><span class="p">,</span><span class="n">output_shape</span><span class="o">=</span><span class="p">[],</span><span class="n">device</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)):</span>
+<span class="k">def</span> <span class="nf">preprocess_and_save_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">save_path</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span><span class="n">transformation</span><span class="p">,</span><span class="n">output_shape</span><span class="o">=</span><span class="p">[]):</span>
     <span class="sd">&quot;&quot;&quot;Function for preprocessing and saving datasets.</span>
 
 <span class="sd">    .. important::</span>
@@ -157,7 +157,6 @@
 <span class="sd">        save_path (str): Save path for the preprocessed dataset</span>
 <span class="sd">        transformation (torch.nn.Module): The transformations that will be applied to the data</span>
 <span class="sd">        output_shape (list): Output shape of an element of the transformation. Defaults to [].</span>
-<span class="sd">        device (torch.device): Defaults to torch.device(&#39;cuda&#39; if torch.cuda.is_available() else &#39;cpu&#39;).</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        AttributeError: If given output shape is not a list or is an empty list</span>
@@ -168,7 +167,7 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The preprocessed dataset already exists, using cache&quot;</span><span class="p">)</span>
         <span class="k">return</span>
     
-    <span class="k">if</span> <span class="n">output_shape</span><span class="o">==</span><span class="p">[]</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_shape</span><span class="p">,</span><span class="nb">list</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">output_shape</span><span class="o">==</span><span class="p">[]</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_shape</span><span class="p">,</span><span class="nb">list</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Specify the shape of the output of the transform using a list&quot;</span><span class="p">)</span>
 
     <span class="c1"># Create a new HDF5 file to store the preprocessed data</span>
@@ -188,13 +187,15 @@
             
                 <span class="c1"># Apply preprocessing to the waveform</span>
                 <span class="n">wave</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">wave</span><span class="p">,</span><span class="n">pad</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">16000</span><span class="o">-</span><span class="n">wave</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-                <span class="n">wave</span> <span class="o">=</span> <span class="n">transformation</span><span class="p">(</span><span class="n">wave</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">))</span>
+                <span class="n">wave</span> <span class="o">=</span> <span class="n">transformation</span><span class="p">(</span><span class="n">wave</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
                 <span class="c1"># Add the preprocessed data to the HDF5 datasets</span>
-                <span class="n">waveform_dset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">wave</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                <span class="n">waveform_dset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">wave</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
                 <span class="n">rate_dset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rate</span>
                 <span class="n">label_dset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
                 <span class="n">speaker_id_dset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">speaker_id</span>
                 <span class="n">ut_number_dset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ut_number</span>
+
                 <span class="c1"># Update the progress bar</span>
                 <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
@@ -348,7 +349,8 @@
         <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">subset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">transforms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">pre_process</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">pre_process</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">output_shape</span><span class="o">=</span><span class="p">[],</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;SpeechCommands dataset wrapper function for avalanche lib.</span>
 
@@ -357,8 +359,9 @@
 <span class="sd">            url (str, optional): version name of the dataset. Defaults to &quot;speech_commands_v0.02&quot;.</span>
 <span class="sd">            download (bool, optional): automatically download the dataset, if not present. Defaults to True.</span>
 <span class="sd">            subset (str, optional): one of &#39;training&#39;, &#39;validation&#39;, &#39;testing&#39;. Defaults to None.</span>
-<span class="sd">            transforms (_type_, optional): transformations applied to the data. Defaults to None.</span>
+<span class="sd">            transforms (torch.nn.Module, optional): transformations applied to the data. Defaults to None.</span>
 <span class="sd">            pre_process (bool, optional): Enable prior preprocessing and saving of the dataset. Defaults to True.</span>
+<span class="sd">            output_shape (list) : Output shape of a transformed element.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If an unkown subset is chosen</span>
@@ -378,22 +381,22 @@
 
             <span class="k">if</span> <span class="n">subset</span><span class="o">==</span><span class="s1">&#39;training&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">preprocessed_train_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;../dataset_cache/&#39;</span><span class="p">,</span> <span class="s2">&quot;preprocessed_train.h5&quot;</span><span class="p">)</span>
-                <span class="n">preprocess_and_save_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessed_train_path</span><span class="p">,</span><span class="n">transformation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_transformation</span><span class="p">)</span>
+                <span class="n">preprocess_and_save_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessed_train_path</span><span class="p">,</span><span class="n">transformation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_transformation</span><span class="p">,</span><span class="n">output_shape</span><span class="o">=</span><span class="n">output_shape</span><span class="p">)</span>
                 <span class="n">cached_dataset</span><span class="o">=</span><span class="n">CachedAudio</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">)</span>
                 <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">datapoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">datapoint</span> <span class="ow">in</span> <span class="n">cached_dataset</span><span class="p">]</span>
                 
             <span class="k">elif</span> <span class="n">subset</span><span class="o">==</span><span class="s1">&#39;testing&#39;</span><span class="p">:</span>
                 
                 <span class="bp">self</span><span class="o">.</span><span class="n">preprocessed_test_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;../dataset_cache/&#39;</span><span class="p">,</span> <span class="s2">&quot;preprocessed_test.h5&quot;</span><span class="p">)</span>
-                <span class="n">preprocess_and_save_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessed_test_path</span><span class="p">,</span><span class="n">transformation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">test_transformation</span><span class="p">)</span>
+                <span class="n">preprocess_and_save_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessed_test_path</span><span class="p">,</span><span class="n">transformation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">test_transformation</span><span class="p">,</span><span class="n">output_shape</span><span class="o">=</span><span class="n">output_shape</span><span class="p">)</span>
                 <span class="n">cached_dataset</span><span class="o">=</span><span class="n">CachedAudio</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">)</span>
                 <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">datapoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">datapoint</span> <span class="ow">in</span> <span class="n">cached_dataset</span><span class="p">]</span>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown data subset. Choose from : training or testing.&quot;</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">make_classification_dataset</span><span class="p">(</span><span class="n">cached_dataset</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="n">speech_commands_collate</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="n">labels</span>
-                                               <span class="p">)</span>
+            <span class="k">return</span> <span class="n">make_classification_dataset</span><span class="p">(</span><span class="n">cached_dataset</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="n">speech_commands_collate</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+        
         <span class="k">else</span><span class="p">:</span>
             <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">datapoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">datapoint</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">]</span>
 
@@ -429,20 +432,21 @@
         <span class="k">return</span> <span class="n">make_classification_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="n">speech_commands_collate</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span><span class="n">transform_groups</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transform_groups</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">train</span><span class="p">,</span><span class="n">pre_process</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">train</span><span class="p">,</span><span class="n">pre_process</span><span class="p">,</span><span class="n">output_shape</span><span class="o">=</span><span class="p">[]):</span>
         <span class="sd">&quot;&quot;&quot;Function call to AudioDataset</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            train (bool): True for training subset and False for testing</span>
 <span class="sd">            pre_process (bool): Preprocess all the dataset before or do the preprocessing on the fly</span>
+<span class="sd">            output_shape (list) : Output shape of a transformed element.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            ClassificationDataset: avalanche comatible speech command dataset</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">train</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">SpeechCommands</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s1">&#39;training&#39;</span><span class="p">,</span><span class="n">pre_process</span><span class="o">=</span><span class="n">pre_process</span><span class="p">,</span><span class="n">transforms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transform_groups</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">SpeechCommands</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s1">&#39;training&#39;</span><span class="p">,</span><span class="n">pre_process</span><span class="o">=</span><span class="n">pre_process</span><span class="p">,</span><span class="n">transforms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transform_groups</span><span class="p">,</span><span class="n">output_shape</span><span class="o">=</span><span class="n">output_shape</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">SpeechCommands</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span><span class="n">pre_process</span><span class="o">=</span><span class="n">pre_process</span><span class="p">,</span><span class="n">transforms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transform_groups</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">SpeechCommands</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span><span class="n">pre_process</span><span class="o">=</span><span class="n">pre_process</span><span class="p">,</span><span class="n">transforms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transform_groups</span><span class="p">,</span><span class="n">output_shape</span><span class="o">=</span><span class="n">output_shape</span><span class="p">)</span></div>
     
 </pre></div>
 

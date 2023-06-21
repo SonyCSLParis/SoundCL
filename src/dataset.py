@@ -63,7 +63,7 @@ def speech_commands_collate(batch):
         return tensors, targets, t_labels# Fix for convolution.permute(0,2,1)
 
 @torch.no_grad()
-def preprocess_and_save_dataset(dataset, save_path : str,transformation,output_shape=[],device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
+def preprocess_and_save_dataset(dataset, save_path : str,transformation,output_shape=[]):
     """Function for preprocessing and saving datasets.
 
     .. important::
@@ -74,7 +74,6 @@ def preprocess_and_save_dataset(dataset, save_path : str,transformation,output_s
         save_path (str): Save path for the preprocessed dataset
         transformation (torch.nn.Module): The transformations that will be applied to the data
         output_shape (list): Output shape of an element of the transformation. Defaults to [].
-        device (torch.device): Defaults to torch.device('cuda' if torch.cuda.is_available() else 'cpu').
 
     Raises:
         AttributeError: If given output shape is not a list or is an empty list
@@ -85,7 +84,7 @@ def preprocess_and_save_dataset(dataset, save_path : str,transformation,output_s
         logging.info("The preprocessed dataset already exists, using cache")
         return
     
-    if output_shape==[] or isinstance(output_shape,list):
+    if output_shape==[] or not isinstance(output_shape,list):
         raise AttributeError("Specify the shape of the output of the transform using a list")
 
     # Create a new HDF5 file to store the preprocessed data
@@ -105,13 +104,15 @@ def preprocess_and_save_dataset(dataset, save_path : str,transformation,output_s
             
                 # Apply preprocessing to the waveform
                 wave = torch.nn.functional.pad(input=wave,pad=[0,16000-wave.shape[0]],mode='constant', value=0)
-                wave = transformation(wave.to(device))
+                wave = transformation(wave.unsqueeze(0)).squeeze(0)
+
                 # Add the preprocessed data to the HDF5 datasets
-                waveform_dset[i] = wave.cpu.numpy()
+                waveform_dset[i] = wave.numpy()
                 rate_dset[i] = rate
                 label_dset[i] = label
                 speaker_id_dset[i] = speaker_id
                 ut_number_dset[i] = ut_number
+
                 # Update the progress bar
                 pbar.update(1)
 
@@ -265,7 +266,8 @@ class Audio_Dataset():
         download=True,
         subset=None,
         transforms=None,
-        pre_process=True
+        pre_process=True,
+        output_shape=[],
     ):
         """SpeechCommands dataset wrapper function for avalanche lib.
 
@@ -274,8 +276,9 @@ class Audio_Dataset():
             url (str, optional): version name of the dataset. Defaults to "speech_commands_v0.02".
             download (bool, optional): automatically download the dataset, if not present. Defaults to True.
             subset (str, optional): one of 'training', 'validation', 'testing'. Defaults to None.
-            transforms (_type_, optional): transformations applied to the data. Defaults to None.
+            transforms (torch.nn.Module, optional): transformations applied to the data. Defaults to None.
             pre_process (bool, optional): Enable prior preprocessing and saving of the dataset. Defaults to True.
+            output_shape (list) : Output shape of a transformed element.
 
         Raises:
             ValueError: If an unkown subset is chosen
@@ -295,14 +298,14 @@ class Audio_Dataset():
 
             if subset=='training':
                 self.preprocessed_train_path = os.path.join('../dataset_cache/', "preprocessed_train.h5")
-                preprocess_and_save_dataset(dataset=dataset, save_path=self.preprocessed_train_path,transformation=self.train_transformation)
+                preprocess_and_save_dataset(dataset=dataset, save_path=self.preprocessed_train_path,transformation=self.train_transformation,output_shape=output_shape)
                 cached_dataset=CachedAudio(subset=subset)
                 labels = [datapoint[1] for datapoint in cached_dataset]
                 
             elif subset=='testing':
                 
                 self.preprocessed_test_path = os.path.join('../dataset_cache/', "preprocessed_test.h5")
-                preprocess_and_save_dataset(dataset=dataset, save_path=self.preprocessed_test_path,transformation=self.test_transformation)
+                preprocess_and_save_dataset(dataset=dataset, save_path=self.preprocessed_test_path,transformation=self.test_transformation,output_shape=output_shape)
                 cached_dataset=CachedAudio(subset=subset)
                 labels = [datapoint[1] for datapoint in cached_dataset]
 
@@ -346,18 +349,19 @@ class Audio_Dataset():
         return make_classification_dataset(dataset, collate_fn=speech_commands_collate, targets=labels,transform_groups=self.transform_groups)
 
 
-    def __call__(self,train,pre_process):
+    def __call__(self,train,pre_process,output_shape=[]):
         """Function call to AudioDataset
 
         Args:
             train (bool): True for training subset and False for testing
             pre_process (bool): Preprocess all the dataset before or do the preprocessing on the fly
+            output_shape (list) : Output shape of a transformed element.
 
         Returns:
             ClassificationDataset: avalanche comatible speech command dataset
         """
         if train:
-            return self.SpeechCommands(subset='training',pre_process=pre_process,transforms=self.transform_groups)
+            return self.SpeechCommands(subset='training',pre_process=pre_process,transforms=self.transform_groups,output_shape=output_shape)
         else:
-            return self.SpeechCommands(subset='testing',pre_process=pre_process,transforms=self.transform_groups)
+            return self.SpeechCommands(subset='testing',pre_process=pre_process,transforms=self.transform_groups,output_shape=output_shape)
     

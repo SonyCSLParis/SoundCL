@@ -45,7 +45,7 @@ from s_trees.learners.ht import HoeffdingTree
 from s_trees.learners.irf import IncrementalRandomForest
 
 #Setting up the experiment
-ex=Experiment('Online replay')
+ex=Experiment('Online cached replay')
 ex.observers.append(MongoObserver(db_name='Continual-learning'))
 
 @ex.config
@@ -98,17 +98,6 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
         int: Top1 average accuracy on eval stream.
     """
 
-    #Import dataset
-    DATASET=Audio_Dataset(train_transformation=None,test_transformation=None)
-
-    command_train=DATASET(train=True,pre_process=False)
-    command_test =DATASET(train=False,pre_process=False)
-    #command_train=DATASET.MLCommons(sub_folder="subset2",subset='training')
-    #command_test=DATASET.MLCommons(sub_folder="subset2",subset='testing')
-    
-    # Create Scenario
-    scenario = nc_benchmark(command_train, command_test, n_experiences=7, shuffle=True, seed=_seed,task_labels=False)
-
     """
     Choose Model from available models:
         Scattering : torch.nn.Sequential( Scattering(),models.EncDecBaseModel(num_mels=50,num_classes=35,final_filter=128,input_length=1000))
@@ -124,6 +113,17 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
 
     feature_extractor=torch.nn.Sequential( pretrained[0],pretrained[1].encoder,models.Pool(128))
     model= torch.nn.Linear(128,35)
+
+    #Import dataset
+    DATASET=Audio_Dataset(train_transformation=feature_extractor,test_transformation=None)
+
+    command_train=DATASET(train=True,pre_process=True,output_shape=[128])
+    command_test =DATASET(train=False,pre_process=True,output_shape=[128])
+    #command_train=DATASET.MLCommons(sub_folder="subset2",subset='training')
+    #command_test=DATASET.MLCommons(sub_folder="subset2",subset='testing')
+    
+    # Create Scenario
+    scenario = nc_benchmark(command_train, command_test, n_experiences=7, shuffle=True, seed=_seed,task_labels=False)
 
     # Setup Logging
 
