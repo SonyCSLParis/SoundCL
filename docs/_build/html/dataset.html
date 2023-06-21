@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2023-06-06T10:08:30+02:00" />
+    <meta property="article:modified_time" content="2023-06-20T18:57:14+02:00" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>dataset module &mdash; Sound-CL 0.0.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -102,6 +102,7 @@
           <li class="breadcrumb-item"><a href="modules.html">src</a></li>
       <li class="breadcrumb-item active">dataset module</li>
       <li class="wy-breadcrumbs-aside">
+            <a href="_sources/dataset.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -195,8 +196,27 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dataset.preprocess_and_save_dataset">
-<span class="sig-prename descclassname"><span class="pre">dataset.</span></span><span class="sig-name descname"><span class="pre">preprocess_and_save_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#preprocess_and_save_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataset.preprocess_and_save_dataset" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">dataset.</span></span><span class="sig-name descname"><span class="pre">preprocess_and_save_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">device(type='cuda')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#preprocess_and_save_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataset.preprocess_and_save_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Function for preprocessing and saving datasets.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This function only works for the SpeechCommands dataset, or for dataset that have those specific entries :  wave, label, rate, speaker_id, utterance_number</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<em>torch.utils.data.Dataset</em>) – The dataset to be processed</p></li>
+<li><p><strong>save_path</strong> (<em>str</em>) – Save path for the preprocessed dataset</p></li>
+<li><p><strong>transformation</strong> (<em>torch.nn.Module</em>) – The transformations that will be applied to the data</p></li>
+<li><p><strong>output_shape</strong> (<em>list</em>) – Output shape of an element of the transformation. Defaults to [].</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em>) – Defaults to torch.device(‘cuda’ if torch.cuda.is_available() else ‘cpu’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AttributeError</strong> – If given output shape is not a list or is an empty list</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dataset.speech_commands_collate">
@@ -229,7 +249,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2023, Joe Khawand.
-      <span class="lastupdated">Last updated on Jun 06, 2023.
+      <span class="lastupdated">Last updated on Jun 20, 2023.
       </span></p>
   </div>
 

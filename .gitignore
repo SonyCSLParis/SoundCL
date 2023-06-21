@@ -1,5 +1,9 @@
+.vscode/
 tb_data/
-dataset/
+dataset/MLCommons/subset1/
+dataset/MLCommons/subset2/
+dataset/SpeechCommands/
+dataset/speech_commands_v0.02.tar.gz
 dataset_cache/
 /models/
 src/pre_transform_analysis/models/pytorch_model.bin

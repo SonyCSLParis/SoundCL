@@ -1,21 +1,20 @@
+import torch
+from torch.utils.data import Dataset
+from torchaudio.datasets import SPEECHCOMMANDS
+from torchaudio.datasets.utils import _load_waveform
+
 from avalanche.benchmarks.utils import make_classification_dataset
 from avalanche.benchmarks.datasets import default_dataset_location
-import torch
-import torch.nn as nn
-from torchaudio.datasets import SPEECHCOMMANDS
-from torch.utils.data import Dataset
-from torchaudio.datasets.utils import _load_waveform
-import torchaudio.transforms as T
+
 import numpy as np
-import math
-import random
-import h5py
+
 import os
+import h5py
 import typing
-from pathlib import Path
-from tqdm import tqdm
 import logging
-from kymatio.torch import Scattering1D
+from tqdm import tqdm
+from pathlib import Path
+
 
 def speech_commands_collate(batch):
     """Collate function for setting up the dataloader
@@ -26,37 +25,74 @@ def speech_commands_collate(batch):
     Returns:
         batch: return batched data in the form ; audio_tensor,target,task_label
     """
-    tensors, targets, t_labels = [], [], []
-    for waveform, label, rate, sid, uid, t_label in batch:
-        if isinstance(waveform,np.ndarray):
-            tensors += [torch.from_numpy(waveform)]
-        elif isinstance(waveform, torch.Tensor):
-            tensors += [waveform]
+    if len(batch)==1:
+        waveform, label, rate, sid, uid, t_label = batch[0]
+        waveform=waveform.squeeze()
+        tensor_size=waveform.size(0)
+        size=16000
+        if tensor_size < size:
+            padding_size = size - tensor_size
+            padded_tensor = torch.cat((waveform, torch.zeros(padding_size)), dim=0)
+            return padded_tensor.unsqueeze(0),torch.tensor(label).unsqueeze(0),torch.tensor(t_label).unsqueeze(0)
+        elif tensor_size > size:
+            cut_tensor = waveform[:size]
+            return cut_tensor.unsqueeze(0),torch.tensor(label).unsqueeze(0),torch.tensor(t_label).unsqueeze(0)
         else:
-            raise ValueError("Waveform must be saved as torch.tensor or np.array")
-        targets += [torch.tensor(label)]
-        t_labels += [torch.tensor(t_label)]
+            return waveform.unsqueeze(0),torch.tensor(label).unsqueeze(0),torch.tensor(t_label).unsqueeze(0)
 
-    tensors = [item.t() for item in tensors]
-    tensors = torch.nn.utils.rnn.pad_sequence(
-        tensors, batch_first=True, padding_value=0.0
-    )
-    if len(tensors.size()) == 2:  # add feature dimension
-        tensors = tensors.unsqueeze(-1)
-    targets = torch.stack(targets)
-    t_labels = torch.stack(t_labels)
-    return tensors, targets, t_labels# Fix for convolution.permute(0,2,1)
+    else:
+        tensors, targets, t_labels = [], [], []
+        for waveform, label, rate, sid, uid, t_label in batch:
+            if isinstance(waveform,np.ndarray):
+                tensors += [torch.from_numpy(waveform)]
+            elif isinstance(waveform, torch.Tensor):
+                tensors += [waveform]
+            else:
+                raise ValueError("Waveform must be saved as torch.tensor or np.array")
+            targets += [torch.tensor(label)]
+            t_labels += [torch.tensor(t_label)]
 
-def preprocess_and_save_dataset(dataset, save_path,transformation):
+        tensors = [item.t() for item in tensors]
+        tensors = torch.nn.utils.rnn.pad_sequence(
+            tensors, batch_first=True, padding_value=0.0
+        )
+        if len(tensors.size()) == 2:  # add feature dimension
+            tensors = tensors.unsqueeze(-1)
+        targets = torch.stack(targets)
+        t_labels = torch.stack(t_labels)
+        return tensors, targets, t_labels# Fix for convolution.permute(0,2,1)
+
+@torch.no_grad()
+def preprocess_and_save_dataset(dataset, save_path : str,transformation,output_shape=[],device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
+    """Function for preprocessing and saving datasets.
+
+    .. important::
+        This function only works for the SpeechCommands dataset, or for dataset that have those specific entries :  wave, label, rate, speaker_id, utterance_number
+
+    Args:
+        dataset (torch.utils.data.Dataset): The dataset to be processed
+        save_path (str): Save path for the preprocessed dataset
+        transformation (torch.nn.Module): The transformations that will be applied to the data
+        output_shape (list): Output shape of an element of the transformation. Defaults to [].
+        device (torch.device): Defaults to torch.device('cuda' if torch.cuda.is_available() else 'cpu').
+
+    Raises:
+        AttributeError: If given output shape is not a list or is an empty list
+    """
+    
     if os.path.isfile(save_path):
         # The preprocessed dataset already exists, no need to preprocess again
         logging.info("The preprocessed dataset already exists, using cache")
         return
     
+    if output_shape==[] or isinstance(output_shape,list):
+        raise AttributeError("Specify the shape of the output of the transform using a list")
+
     # Create a new HDF5 file to store the preprocessed data
     with h5py.File(save_path, 'w') as f:
+
         # Create HDF5 datasets for the waveform, rate, label, speaker_id, and ut_number
-        waveform_dset = f.create_dataset('waveform', shape=(len(dataset),64,1601), dtype=np.dtype('float32'))
+        waveform_dset = f.create_dataset('waveform', shape=(len(dataset),*output_shape), dtype=np.dtype('float32'))
         rate_dset = f.create_dataset('rate', shape=(len(dataset),), dtype='int32')
         label_dset = f.create_dataset('label', shape=(len(dataset),), dtype='int32')
         speaker_id_dset = f.create_dataset('speaker_id', shape=(len(dataset),), dtype=h5py.special_dtype(vlen=str))
@@ -66,103 +102,24 @@ def preprocess_and_save_dataset(dataset, save_path,transformation):
         with tqdm(total=len(dataset),desc="Preprocessing dataset") as pbar:
             for i, item in enumerate(dataset):
                 wave, label, rate, speaker_id, ut_number = item
-               
+            
                 # Apply preprocessing to the waveform
                 wave = torch.nn.functional.pad(input=wave,pad=[0,16000-wave.shape[0]],mode='constant', value=0)
-                wave = transformation(wave)
-
+                wave = transformation(wave.to(device))
                 # Add the preprocessed data to the HDF5 datasets
-                waveform_dset[i] = wave.numpy()
+                waveform_dset[i] = wave.cpu.numpy()
                 rate_dset[i] = rate
                 label_dset[i] = label
                 speaker_id_dset[i] = speaker_id
                 ut_number_dset[i] = ut_number
-
                 # Update the progress bar
                 pbar.update(1)
 
-def spec_aug(tensor,time_mask=50,freq_mask=5,prob=0.8):
-    time_masking = T.TimeMasking(time_mask_param=time_mask,p=prob)
-    freq_masking = T.FrequencyMasking(freq_mask_param=freq_mask)
-    return freq_masking(freq_masking(time_masking(time_masking(tensor))))
     
-def mfcc_transform(audio_tensor,sample_rate,n_fft=512,n_mfcc=64,hop_length=10,mel_scale='htk'):
-    transform = T.MFCC(
-        sample_rate=sample_rate,
-        n_mfcc=n_mfcc,
-        melkwargs={
-            "hop_length": hop_length,
-            "mel_scale": mel_scale,
-            "n_fft": n_fft,
-            "n_mels":64,
-        },
-    )
-    return transform(audio_tensor.to(dtype=torch.float32))
-    
-def add_white_noise(audio_tensor,min_snr_db=20,max_snr_db=90,STD_n=0.5,norm=2):
-    noise=np.random.normal(0, STD_n, audio_tensor.shape)
-    noise_power = torch.from_numpy(noise).norm(p=norm)
-    audio_power = audio_tensor.norm(p=norm)
-
-    snr_db = random.randint(min_snr_db,max_snr_db)
-    snr = math.exp(snr_db / 10)
-    scale = snr * noise_power / audio_power
-
-    return (noise/scale+audio_tensor)/2
-
-class AddWhiteNoise(nn.Module):
-    def __init__(self):
-        super().__init__()
-    def forward(self,x):
-        return(add_white_noise(audio_tensor=x))
-    
-class MfccTransform(nn.Module):
-    def __init__(self,sample_rate):
-        super().__init__()
-        self.sample_rate=sample_rate
-    def forward(self, x):
-        if len(x.shape)>1:
-            batch_size, num_samples = x.shape
-
-            mfcc_features = []
-            for i in range(batch_size):
-                audio_tensor = x[i]  # Extract each audio tensor from the batch
-                
-                mfcc = mfcc_transform(audio_tensor=audio_tensor,sample_rate=self.sample_rate)
-                mfcc_features.append(mfcc)
-
-            mfcc_features = torch.stack(mfcc_features)        
-            return mfcc_features.permute(0,2,1)
-        else:
-            return mfcc_transform(audio_tensor=x,sample_rate=self.sample_rate)
-
-class SpecAugment(nn.Module):
-    def __init__(self):
-        super().__init__()
-    def forward(self,x):
-        return spec_aug(tensor=x)
-
-class Scattering(nn.Module):
-    def __init__(self):
-        super().__init__()
-        #Scattering hyperparameters
-        T=16000
-        J=4
-        Q=8
-        self.log_eps=1e-6
-        #Layers
-        self.scattering= Scattering1D(J=J,shape=T,Q=Q)
-        self.batch_norm= nn.BatchNorm2d(1)
-    def forward(self,x):
-        #print(x.shape)
-        x=self.scattering(x.squeeze())
-        #print(x.shape)
-        x=torch.log(torch.abs(x)+self.log_eps)
-        x=self.batch_norm(x.unsqueeze(1))
-        #print(x.shape)
-        return x.squeeze(1).permute(0,2,1)
 
 class SpeechCommandsData(SPEECHCOMMANDS):
+    """Wrapper for torchaudio's speechcommand dataset.
+    """
     def __init__(self, root, url, download, subset):
         super().__init__(root=root, download=download, subset=subset, url=url)
         self.labels_names = ["backward","bed","bird","cat","dog","down","eight","five","follow","forward","four","go","happy","house","learn","left","marvin","nine","no","off","on","one","right","seven","sheila","six","stop","three","tree","two","up","visual","wow","yes","zero"]
@@ -177,6 +134,8 @@ class SpeechCommandsData(SPEECHCOMMANDS):
         return wave, label, rate, speaker_id, ut_number
 
 class MLcommonsData():
+    """Wrapper for a subset of the MlCommons `Multilingual Spoken Words dataset <https://mlcommons.org/en/multilingual-spoken-words/>`_
+    """
     def __init__(self, root,sub_folder,subset,folder_in_archive = "MLCommons"):
         if sub_folder=='subset1':
             self.labels_names = ['about', 'books', 'car', 'county', 'different', 'door', 'felt', 'game', 'has', 'live', 'man', 'north', 'open', 'party', 'put', 'run', 'side', 'sun', 'thing', 'trying', 'who', 'words', 'back', 'boy', 'church', 'day', 'does', 'end', 'friend', 'general', 'here', 'love', 'need', 'now', 'our', 'people', 'river', 'service', 'song', 'sure', 'then', 'treasure', 'why', 'you']
@@ -246,6 +205,8 @@ class MLcommonsData():
 
 
 class CachedAudio(Dataset):
+    """Wrapper for cached `hdf5 <https://www.h5py.org/>`_ audio datasets.
+    """
     def __init__(self,subset,train_cache_path='../dataset_cache/',test_cache_path='../dataset_cache/'):
         self.labels_names = ["backward","bed","bird","cat","dog","down","eight","five","follow","forward","four","go","happy","house","learn","left","marvin","nine","no","off","on","one","right","seven","sheila","six","stop","three","tree","two","up","visual","wow","yes","zero"]
         self.subset=subset
@@ -283,18 +244,19 @@ class CachedAudio(Dataset):
         return wave, label, rate, speaker_id, ut_number
     
 class Audio_Dataset():
-    def __init__(self):
+    """Avalanche audio datasets wrapper.
+    """
+    def __init__(self,train_transformation=None,test_transformation=None):
         
-        self.labels_names = ["backward","bed","bird","cat","dog","down","eight","five","follow","forward","four","go","happy","house","learn","left","marvin","nine","no","off","on","one","right","seven","sheila","six","stop","three","tree","two","up","visual","wow","yes","zero"]
-        
+        self.labels_names  = ["backward","bed","bird","cat","dog","down","eight","five","follow","forward","four","go","happy","house","learn","left","marvin","nine","no","off","on","one","right","seven","sheila","six","stop","three","tree","two","up","visual","wow","yes","zero"]
         self.commons_names = ['about', 'books', 'car', 'county', 'different', 'door', 'felt', 'game', 'has', 'live', 'man', 'north', 'open', 'party', 'put', 'run', 'side', 'sun', 'thing', 'trying', 'who', 'words', 'back', 'boy', 'church', 'day', 'does', 'end', 'friend', 'general', 'here', 'love', 'need', 'now', 'our', 'people', 'river', 'service', 'song', 'sure', 'then', 'treasure', 'why', 'you']
         self.commons_names2= ["tried","hey","career","south","please","working","building","old","around","company","himself","language","album","family","young","returned","important","throughout","understand","include","business","daughter","everything","englishman","between","outside",'about', 'books', 'car', 'county', 'different', 'door', 'felt', 'game', 'has', 'live', 'man', 'north', 'open', 'party', 'put', 'run', 'side', 'sun', 'thing', 'trying', 'who', 'words', 'back', 'boy', 'church', 'day', 'does', 'end', 'friend', 'general', 'here', 'love', 'need', 'now', 'our', 'people', 'river', 'service', 'song', 'sure', 'then', 'treasure', 'why', 'you']
 
-        self.train_transformation = MfccTransform(sample_rate=16000)#nn.Sequential(AddWhiteNoise(),MfccTransform(sample_rate=16000))#,SpecAugment())
-        self.test_transformation = MfccTransform(sample_rate=16000)#nn.Sequential(MfccTransform(sample_rate=16000))
+        self.train_transformation = train_transformation
+        self.test_transformation = test_transformation
         self.transform_groups={
             'train':(self.train_transformation,None),
-            'test':(self.test_transformation,None)
+            'eval':(self.test_transformation,None)
         }
 
     def SpeechCommands(self,
@@ -305,11 +267,21 @@ class Audio_Dataset():
         transforms=None,
         pre_process=True
     ):
-        """
-        root: dataset root location
-        url: version name of the dataset
-        download: automatically download the dataset, if not present
-        subset: one of 'training', 'validation', 'testing'
+        """SpeechCommands dataset wrapper function for avalanche lib.
+
+        Args:
+            root (str, optional): dataset root location. Defaults to default_dataset_location("speechcommands").
+            url (str, optional): version name of the dataset. Defaults to "speech_commands_v0.02".
+            download (bool, optional): automatically download the dataset, if not present. Defaults to True.
+            subset (str, optional): one of 'training', 'validation', 'testing'. Defaults to None.
+            transforms (_type_, optional): transformations applied to the data. Defaults to None.
+            pre_process (bool, optional): Enable prior preprocessing and saving of the dataset. Defaults to True.
+
+        Raises:
+            ValueError: If an unkown subset is chosen
+
+        Returns:
+            ClassificationDataset: Avalanche's classification dataset
         """
         
         dataset = SpeechCommandsData(
@@ -337,18 +309,29 @@ class Audio_Dataset():
             else:
                 raise ValueError("Unknown data subset. Choose from : training or testing.")
 
-            return make_classification_dataset(cached_dataset, collate_fn=speech_commands_collate, targets=labels
-                                               )
+            return make_classification_dataset(cached_dataset, collate_fn=speech_commands_collate, targets=labels)
+        
         else:
             labels = [datapoint[1] for datapoint in dataset]
 
-            return make_classification_dataset(dataset, collate_fn=speech_commands_collate, targets=labels,transform_groups=None)
+            return make_classification_dataset(dataset, collate_fn=speech_commands_collate, targets=labels,transform_groups=self.transform_groups)
 
     def MLCommons(self,
         root='../dataset/',
-        sub_folder="subset1",
+        sub_folder="subset2",
         subset="training",
         transforms=None,):
+        """MLCommons dataset wrapper function for avalanche lib.
+
+        Args:
+            root (str, optional):  dataset root location. Defaults to '../dataset/'.
+            sub_folder (str, optional): dataset subset. Defaults to "subset2".
+            subset (str, optional): one of 'training', 'validation', 'testing'. Defaults to "training".
+            transforms (_type_, optional): transformations applied to the data. Defaults to None.
+
+        Returns:
+            ClassificationDataset: Avalanche's classification dataset
+        """
 
         #Because the Ml commons dataset has the same structure as the speech commands dataset we can use the same wrapper
         # we create empty validation and testing list because this is only used for pretraining
@@ -360,7 +343,7 @@ class Audio_Dataset():
 
         labels = [datapoint[1] for datapoint in dataset]
 
-        return make_classification_dataset(dataset, collate_fn=speech_commands_collate, targets=labels,transform_groups=None)
+        return make_classification_dataset(dataset, collate_fn=speech_commands_collate, targets=labels,transform_groups=self.transform_groups)
 
 
     def __call__(self,train,pre_process):

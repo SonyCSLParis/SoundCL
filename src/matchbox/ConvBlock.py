@@ -11,16 +11,11 @@ conv_activations = {"hardtanh": nn.Hardtanh, "relu": nn.ReLU, "selu": nn.SELU, "
 
 def tds_uniform_(tensor, mode='fan_in'):
     """
-    Uniform Initialization from the paper [Sequence-to-Sequence Speech Recognition with Time-Depth Separable Convolutions](https://www.isca-speech.org/archive/Interspeech_2019/pdfs/2460.pdf)
-    Normalized to -
-    .. math::
-        \text{bound} = \text{2} \times \sqrt{\frac{1}{\text{fan\_mode}}}
+    Uniform Initialization from the paper `Sequence-to-Sequence Speech Recognition with Time-Depth Separable Convolutions <https://www.isca-speech.org/archive/Interspeech_2019/pdfs/2460.pdf>`_
+
     Args:
         tensor: an n-dimensional `torch.Tensor`
-        mode: either ``'fan_in'`` (default) or ``'fan_out'``. Choosing ``'fan_in'``
-            preserves the magnitude of the variance of the weights in the
-            forward pass. Choosing ``'fan_out'`` preserves the magnitudes in the
-            backwards pass.
+        mode: either ``'fan_in'`` (default) or ``'fan_out'``. Choosing ``'fan_in'`` preserves the magnitude of the variance of the weights in the forward pass. Choosing ``'fan_out'`` preserves the magnitudes in the backwards pass.
     """
     fan = _calculate_correct_fan(tensor, mode)
     gain = 2.0  # sqrt(4.0) = 2
@@ -32,16 +27,11 @@ def tds_uniform_(tensor, mode='fan_in'):
 
 def tds_normal_(tensor, mode='fan_in'):
     """
-    Normal Initialization from the paper [Sequence-to-Sequence Speech Recognition with Time-Depth Separable Convolutions](https://www.isca-speech.org/archive/Interspeech_2019/pdfs/2460.pdf)
-    Normalized to -
-    .. math::
-        \text{bound} = \text{2} \times \sqrt{\frac{1}{\text{fan\_mode}}}
+    Normal Initialization from the paper `Sequence-to-Sequence Speech Recognition with Time-Depth Separable Convolutions <https://www.isca-speech.org/archive/Interspeech_2019/pdfs/2460.pdf>`_
+ 
     Args:
         tensor: an n-dimensional `torch.Tensor`
-        mode: either ``'fan_in'`` (default) or ``'fan_out'``. Choosing ``'fan_in'``
-            preserves the magnitude of the variance of the weights in the
-            forward pass. Choosing ``'fan_out'`` preserves the magnitudes in the
-            backwards pass.
+        mode: either ``'fan_in'`` (default) or ``'fan_out'``. Choosing ``'fan_in'`` preserves the magnitude of the variance of the weights in the forward pass. Choosing ``'fan_out'`` preserves the magnitudes in the backwards pass.
     """
     fan = _calculate_correct_fan(tensor, mode)
     gain = 2.0
@@ -110,19 +100,17 @@ class GroupShuffle(nn.Module):
         return x
 
 class ConvBlock(nn.Module):
-    """
+    """Convolution Block torch Module. This is the main building block of the network.
+
     Args:
         inplanes: Number of input channels.
         planes: Number of output channels.
         repe_at: Number of repeated sub-blocks (R) for this block.
         kernelsize: Convolution kernel size across all repeated sub-blocks.
-        kernel_size_factor: Floating point scale value that is multiplied with kernel size,
-            then rounded down to nearest odd integer to compose the kernel size. Defaults to 1.0.
+        kernel_size_factor: Floating point scale value that is multiplied with kernel size, then rounded down to nearest odd integer to compose the kernel size. Defaults to 1.0.
         stride: Stride of the convolutional layers.
-        dilation: Integer which defined dilation factor of kernel. Note that when dilation > 1, stride must
-            be equal to 1.
-        padding: String representing type of padding. Currently only supports "same" padding,
-            which symmetrically pads the input tensor with zeros.
+        dilation: Integer which defined dilation factor of kernel. Note that when dilation > 1, stride must be equal to 1.
+        padding: String representing type of padding. Currently only supports "same" padding, which symmetrically pads the input tensor with zeros.
         dropout: Floating point value, determins percentage of output that is zeroed out.
         activation: String representing activation functions. Valid activation functions are :
             {"hardtanh": nn.Hardtanh, "relu": nn.ReLU, "selu": nn.SELU, "swish": Swish}.
@@ -381,6 +369,7 @@ class ConvBlock(nn.Module):
     def forward(self, input_: Tuple[List[torch.Tensor], Optional[torch.Tensor]]):
         """
         Forward pass of the module.
+
         Args:
             input_: The input is a tuple of two values - the preprocessed audio signal as well as the lengths
                 of the audio signal. The audio signal is padded to the shape [B, D, T] and the lengths are

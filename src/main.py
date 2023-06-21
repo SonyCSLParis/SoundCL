@@ -1,13 +1,17 @@
-from dataset import Audio_Dataset,Scattering
+from dataset import Audio_Dataset
+from transforms import Scattering
 
 from avalanche.logging import InteractiveLogger, TextLogger, TensorboardLogger
 from avalanche.training.plugins import EvaluationPlugin,EarlyStoppingPlugin,GenerativeReplayPlugin,LwFPlugin,ReplayPlugin,LRSchedulerPlugin,SynapticIntelligencePlugin,GDumbPlugin,CoPEPlugin,AGEMPlugin
 from avalanche.benchmarks.generators import nc_benchmark
 from avalanche.evaluation.metrics import forgetting_metrics, accuracy_metrics,loss_metrics, timing_metrics, cpu_usage_metrics, confusion_matrix_metrics, gpu_usage_metrics
 from avalanche.training.templates import SupervisedTemplate
-from avalanche.training import JointTraining,Naive
+from avalanche.training import JointTraining,Naive,OnlineNaive
+from avalanche.training.supervised import StreamingLDA
+from avalanche.benchmarks.scenarios import OnlineCLScenario
 
-from nemo.core.optim.lr_scheduler import PolynomialHoldDecayAnnealing,PolynomialDecayAnnealing
+from plugins.ekfac_plugin import EKFAC_Plugin,KFAC_Plugin
+
 from nemo.core.optim.optimizers import Novograd
 
 from torch.nn import CrossEntropyLoss,NLLLoss
@@ -15,6 +19,7 @@ from torch.optim import SGD,Adam
 import torch
 
 import models
+from matchbox.ConvASRDecoder import ConvASRDecoderClassification
 
 from sacred import Experiment
 from sacred.observers import MongoObserver
@@ -32,10 +37,15 @@ import pandas as pd
 import seaborn as sn
 import matplotlib.pyplot as plt
 
-from torchinfo import summary
+from templates.river import RiverTemplate
+from river.forest import ARFClassifier
+
+from s_trees.utils.cls_utils import HTtoRIVER
+from s_trees.learners.ht import HoeffdingTree
+from s_trees.learners.irf import IncrementalRandomForest
 
 #Setting up the experiment
-ex=Experiment('Ml commons pretraining 3')
+ex=Experiment('Online replay')
 ex.observers.append(MongoObserver(db_name='Continual-learning'))
 
 @ex.config
@@ -43,24 +53,34 @@ def cfg():
     """Config function for efficient config saving in sacred
     """
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    opt_type='novograd'
+    opt_type='adam'
     learning_rate=0.001
     train_batch_size=128
     eval_batch_size=128
-    train_epochs=40
+    train_epochs=1
     momentum=0.9
     w_decay=0.001
     betas=[0.95, 0.5]
     seed=2
     PolynomialHoldDecayAnnealing_schedule=False
-    tags = ["Regularization","MatchboxNet","M5","Joint","Naive","Replay","Combined","Architectural"]#to choose from in Omniboard
+    tags = []#"Regularization","MatchboxNet","M5","Joint","Naive","Replay","Combined","Architectural"]#to choose from in Omniboard
     save_model=True
 
 
 
 @ex.automain
 def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epochs,momentum,w_decay,betas,save_model,_seed,_run):
-    """Main function ran by sacred automain decorator
+    """Main function of the continual learning framework. This uses `Avalanche lib <https://avalanche.continualai.org/>`_ to create continual learning scenarios.
+
+    Summary:
+        This library uses multiple main concepts to enable continual learning with pytorch :
+        
+        - Templates :
+        - Scenarios :
+        - Plugins :
+        - Abstractions :
+
+        For more detailed information about the use of this library check out their main `website <https://avalanche.continualai.org/>`_ and their `API <https://avalanche-api.continualai.org/en/v0.3.1/>`_
 
     Args:
         opt_type (str): Optimizer type
@@ -79,16 +99,16 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
     """
 
     #Import dataset
-    DATASET=Audio_Dataset()
+    DATASET=Audio_Dataset(train_transformation=None,test_transformation=None)
 
-    #command_train=DATASET(train=True,pre_process=False)
-    #command_test =DATASET(train=False,pre_process=False)
-    command_train=DATASET.MLCommons(sub_folder="subset2",subset='training')
-    command_test=DATASET.MLCommons(sub_folder="subset2",subset='testing')
+    command_train=DATASET(train=True,pre_process=False)
+    command_test =DATASET(train=False,pre_process=False)
+    #command_train=DATASET.MLCommons(sub_folder="subset2",subset='training')
+    #command_test=DATASET.MLCommons(sub_folder="subset2",subset='testing')
     
     # Create Scenario
-    scenario = nc_benchmark(command_train, command_test, n_experiences=1, shuffle=True, seed=_seed,task_labels=False)
-    
+    scenario = nc_benchmark(command_train, command_test, n_experiences=7, shuffle=True, seed=_seed,task_labels=False)
+
     """
     Choose Model from available models:
         Scattering : torch.nn.Sequential( Scattering(),models.EncDecBaseModel(num_mels=50,num_classes=35,final_filter=128,input_length=1000))
@@ -97,7 +117,13 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
 
     NB: check the pre-processing before using model
     """
-    model=torch.nn.Sequential( Scattering(),models.EncDecBaseModel(num_mels=50,num_classes=70,final_filter=128,input_length=1000))
+    pretrained=torch.nn.Sequential( Scattering(),models.EncDecBaseModel(num_mels=50,num_classes=70,final_filter=128,input_length=1000))
+    pretrained.load_state_dict(torch.load('./pre_training/models/pretrained2.pt'))
+    for param in pretrained.parameters():
+        param.requires_grad = False
+
+    feature_extractor=torch.nn.Sequential( pretrained[0],pretrained[1].encoder,models.Pool(128))
+    model= torch.nn.Linear(128,35)
 
     # Setup Logging
 
@@ -139,33 +165,37 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
         Lr scheduler    : LRSchedulerPlugin(PolynomialHoldDecayAnnealing(optimizer=optimizer,power=2.0,max_steps=(int(command_train.__len__()/train_batch_size)+1)*train_epochs,min_lr=0.000001,last_epoch=-1,warmup_ratio=0.05,hold_ratio=0.45))
         Replay          : ReplayPlugin(mem_size=50)
         Regularization  : SynapticIntelligencePlugin
-        Pseudo Replay   : GenerativeReplayPlugin()
-        Early Stopping  : 
+        Pseudo Replay   : GenerativeReplayPlugin() 
 
     NB: we can add multiple plugins to the same strategy
     """
     scheduler=torch.optim.lr_scheduler.SequentialLR(optimizer=optimizer,
-                                                    schedulers=[ torch.optim.lr_scheduler.ConstantLR(optimizer, factor=1, total_iters=int((int(command_train.__len__()/train_batch_size)+1)*train_epochs*0.5)),
-                                                                 torch.optim.lr_scheduler.PolynomialLR(optimizer, total_iters=int((int(command_train.__len__()/train_batch_size)+1)*train_epochs*0.5), power=2.0, last_epoch=- 1, verbose=False)],
-                                                    milestones=[int((int(command_train.__len__()/train_batch_size)+1)*train_epochs*0.75)])
+                                                    schedulers=[ torch.optim.lr_scheduler.ConstantLR(optimizer, factor=1, total_iters=int((int(command_train.__len__()/train_batch_size)+1)*train_epochs*0.4)),
+                                                                 torch.optim.lr_scheduler.PolynomialLR(optimizer, total_iters=int((int(command_train.__len__()/train_batch_size)+1)*train_epochs*0.6), power=2.0, last_epoch=- 1, verbose=False)],
+                                                    milestones=[int((int(command_train.__len__()/train_batch_size)+1)*train_epochs*0.4)])
 
-    plugin_list=[LRSchedulerPlugin(scheduler=scheduler,step_granularity="iteration",reset_lr=False)]    
+    plugin_list=[ReplayPlugin(mem_size=200)]#LRSchedulerPlugin(scheduler=scheduler,step_granularity="iteration"),
+                #EKFAC_Plugin(network=model)]    
         
-    # Create the Cl startegy
-    cl_strategy = JointTraining(
-                        model, optimizer,CrossEntropyLoss(), 
-                        train_mb_size=train_batch_size, eval_mb_size=eval_batch_size,
-                        device=device,
-                        train_epochs=train_epochs,
-                        evaluator=eval_plugin,
-                        plugins=plugin_list
-                )
+    """
+      Choose the continual learning startegy.
 
-    # Training Loop
+      Here are some examples:
+        Joint training      : JointTraining(model, optimizer,CrossEntropyLoss(), train_mb_size=train_batch_size, eval_mb_size=eval_batch_size,device=device,train_epochs=train_epochs,evaluator=eval_plugin,plugins=plugin_list)
+        Naive               : Naive()
+        Supervised Template : SupervisedTemplate(model, optimizer,CrossEntropyLoss(), train_mb_size=train_batch_size, eval_mb_size=eval_batch_size,device=device,train_epochs=train_epochs,evaluator=eval_plugin,plugins=plugin_list)
+        Streaming LDA       : StreamingLDA(slda_model= model,criterion= CrossEntropyLoss(),input_size=128,num_classes= 35,evaluator=eval_plugin,plugins=plugin_list, device=device,eval_mb_size=eval_batch_size,train_mb_size=train_batch_size)
+        Online Naive        : OnlineNaive(model=model,optimizer=optimizer,criterion=CrossEntropyLoss(),train_mb_size=train_batch_size,eval_mb_size=eval_batch_size,device=device,plugins=plugin_list,evaluator=eval_plugin,eval_every=-1)
+        River Template      : RiverTemplate(deep_model=model,online_model=HTtoRIVER(classifier=IncrementalRandomForest(size=10, num_workers=15, att_split_est=True)),criterion=None,input_size=128,train_mb_size=train_batch_size,eval_mb_size=eval_batch_size,device=device,evaluator=EvaluationPlugin(loggers=[interactive_logger, text_logger, tb_logger]))
+    """
+
+    cl_strategy= OnlineNaive(model=model,optimizer=optimizer,criterion=CrossEntropyLoss(),train_mb_size=train_batch_size,eval_mb_size=eval_batch_size,device=device,plugins=plugin_list,evaluator=eval_plugin,eval_every=-1)
+
+    #Training loop
     logging.info('Starting experiment...')
     results = []
 
-    # Check if the user requested Joint training
+    # Check if the user requested Joint training, Online training, or regular Supervised Template
     if isinstance(cl_strategy,JointTraining):
         logging.info("Start of joint training: ")
         res = cl_strategy.train(scenario.train_stream)
@@ -174,6 +204,27 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
         logging.info('Start of Eval')
         results.append(cl_strategy.eval(scenario.test_stream))
         logging.info('End of Eval')
+
+    elif isinstance(cl_strategy,OnlineNaive):
+        batch_streams= scenario.streams.values()
+        for experience in scenario.train_stream:
+            logging.info("Start of Online experience: "+ str(experience.current_experience))
+            logging.info("Current Classes: "+ str(experience.classes_in_this_experience))
+
+            ocl_scenario = OnlineCLScenario(
+                original_streams=batch_streams,
+                experiences=experience,
+                experience_size=1,
+                access_task_boundaries=False,
+            )
+
+            cl_strategy.train(ocl_scenario.train_stream)
+
+            logging.info('Online training completed')
+            logging.info('Start of Eval')
+            results.append(cl_strategy.eval(scenario.test_stream))
+            logging.info('End of Eval')
+    
     else:
         for experience in scenario.train_stream:
             logging.info("Start of experience: "+ str(experience.current_experience))
@@ -191,9 +242,9 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
 
     # Logging metrics and artifacts into sacred
 
-    cf_matrix=results[0]['ConfusionMatrix_Stream/eval_phase/test_stream']
-    df_cm = pd.DataFrame(cf_matrix/ np.sum(cf_matrix.numpy(), axis=1)[:, None], index = [i for i in DATASET.commons_names2],
-                    columns = [i for i in DATASET.commons_names2])
+    cf_matrix=results[-1]['ConfusionMatrix_Stream/eval_phase/test_stream']
+    df_cm = pd.DataFrame(cf_matrix/ np.sum(cf_matrix.numpy(), axis=1)[:, None], index = [i for i in DATASET.labels_names],
+                    columns = [i for i in DATASET.labels_names])
     fig, ax = plt.subplots(figsize = (24,14))
     sn.heatmap(df_cm, annot=True,ax=ax)
     plt.savefig('heatmap.png')#figure size doesnt work

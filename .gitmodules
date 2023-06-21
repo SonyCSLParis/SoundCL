@@ -1,6 +1,6 @@
 [submodule "src/plugins/EKFAC-pytorch"]
 	path = src/plugins/natgrad
-	url = https://github.com/Thrandis/EKFAC-pytorch.git
+	url = https://github.com/Joe-Khawand/EKFAC-pytorch.git
 [submodule "src/s-trees"]
 	path = src/s_trees
 	url = https://github.com/lkorycki/lldt.git

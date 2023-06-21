@@ -12,55 +12,21 @@ from torchinfo import summary
 from kymatio.torch import Scattering1D
 
 class EncDecBaseModel(nn.Module):
+    """Encoder decoder model for MatchboxNet from the paper : http://arxiv.org/abs/2004.08531
+
+    Args:
+        num_mels (int): number of mel features in the mfcc transform preprocessing
+        final_filter (int): size of final conv filter in the encoder
+        num_classes (int): number of output classes for classification
+        input_length (int): input time dimension length
+
+    """
 
     def __init__(self, num_mels, 
                  final_filter,
                  num_classes,
                  input_length):
-        """Encoder decoder model for MatchboxNet from the paper : http://arxiv.org/abs/2004.08531
 
-        Args:
-            num_mels (int): number of mel features in the mfcc transform preprocessing
-            final_filter (int): size of final conv filter in the encoder
-            num_classes (int): number of output classes for classification
-            input_length (int): input time dimension length
-        Summary:
-            ===========================================================================
-            Layer (type:depth-idx)                             Param #
-            ===========================================================================
-            EncDecBaseModel                                    --
-            ├─ConvASREncoder: 1-1                              --
-            │    └─ConvBlock: 2-1                              --
-            │    │    └─ModuleList: 3-1                        9,152
-            │    │    └─Sequential: 3-2                        --
-            │    └─ConvBlock: 2-2                              --
-            │    │    └─ModuleList: 3-3                        9,984
-            │    │    └─ModuleList: 3-4                        8,320
-            │    │    └─Sequential: 3-5                        --
-            │    └─ConvBlock: 2-3                              --
-            │    │    └─ModuleList: 3-6                        5,184
-            │    │    └─ModuleList: 3-7                        4,224
-            │    │    └─Sequential: 3-8                        --
-            │    └─ConvBlock: 2-4                              --
-            │    │    └─ModuleList: 3-9                        5,312
-            │    │    └─ModuleList: 3-10                       4,224
-            │    │    └─Sequential: 3-11                       --
-            │    └─ConvBlock: 2-5                              --
-            │    │    └─ModuleList: 3-12                       10,304
-            │    │    └─Sequential: 3-13                       --
-            │    └─ConvBlock: 2-6                              --
-            │    │    └─ModuleList: 3-14                       16,768
-            │    │    └─Sequential: 3-15                       --
-            ├─ConvASRDecoderClassification: 1-2                --
-            │    └─AdaptiveAvgPool1d: 2-8                      --
-            │    └─Sequential: 2-9                             --
-            │    │    └─Linear: 3-22                           4,515
-            ===========================================================================
-            Total params: 77,987
-            Trainable params: 77,987
-            Non-trainable params: 0
-            ===========================================================================
-        """
         super(EncDecBaseModel, self).__init__()
 
         self.input_length = torch.tensor(input_length)
@@ -73,7 +39,6 @@ class EncDecBaseModel(nn.Module):
         logits = self.decoder(encoder_output=encoded)
         return logits
 
-#TODO investigate parameter number difference
 
 class AudioVAE(nn.Module,Generator):
     def __init__(self, imgChannels=1, featureDim=15656, zDim=256):
@@ -152,40 +117,18 @@ class AudioVAE(nn.Module,Generator):
         z = self.reparameterize(mu, logVar)
         out = self.decoder(z)
         return out, mu, logVar
+    
 class M5(nn.Module):
-
+    """Basic M5 model from the paper https://arxiv.org/pdf/1610.00087.pdf
+    
+    Args:
+        n_input (int, optional): Number of inputs. Defaults to 1.
+        n_output (int, optional): Number of outputs. Defaults to 35.
+        stride (int, optional): Convolution stride. Defaults to 16.
+        n_channel (int, optional): Output channels of convolution layers. Defaults to 32.
+    """
     def __init__(self, n_input=1, n_output=35, stride=16, n_channel=32):
-        """Basic M5 model from the paper https://arxiv.org/pdf/1610.00087.pdf
 
-        Args:
-            n_input (int, optional): Number of inputs. Defaults to 1.
-            n_output (int, optional): Number of outputs. Defaults to 35.
-            stride (int, optional): Convolution stride. Defaults to 16.
-            n_channel (int, optional): Output channels of convolution layers. Defaults to 32.
-        Summary:
-            =================================================================
-            Layer (type:depth-idx)                   Param #
-            =================================================================
-            M5                                       --
-            ├─Conv1d: 1-1                            5,635
-            ├─BatchNorm1d: 1-2                       70
-            ├─MaxPool1d: 1-3                         --
-            ├─Conv1d: 1-4                            3,710
-            ├─BatchNorm1d: 1-5                       70
-            ├─MaxPool1d: 1-6                         --
-            ├─Conv1d: 1-7                            7,420
-            ├─BatchNorm1d: 1-8                       140
-            ├─MaxPool1d: 1-9                         --
-            ├─Conv1d: 1-10                           14,770
-            ├─BatchNorm1d: 1-11                      140
-            ├─MaxPool1d: 1-12                        --
-            ├─Linear: 1-13                           2,485
-            =================================================================
-            Total params: 34,440
-            Trainable params: 34,440
-            Non-trainable params: 0
-            =================================================================
-        """
         super().__init__()
         self.conv1 = nn.Conv1d(n_input, n_channel, kernel_size=160, stride=stride)
         self.bn1 = nn.BatchNorm1d(n_channel)
@@ -264,3 +207,18 @@ if __name__=='__main__':
     test_output = model(test_input)
     
     print(test_output.size())
+
+class Pool(nn.Module):
+    def __init__(self,channel_size):
+        super().__init__()
+        self.pooling=nn.AdaptiveAvgPool1d(1)
+        self.channel_size=channel_size
+    def forward(self,x):
+        x=self.pooling(x).view(-1,self.channel_size)
+        return x
+
+class Circularize(nn.Module):
+    def __init__(self) :
+        super().__init__()
+    def forward(self,x):
+        return torch.cat((x,torch.square(x)),dim=-1)

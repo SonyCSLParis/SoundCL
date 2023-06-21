@@ -145,16 +145,37 @@
         <span class="n">t_labels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">t_labels</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tensors</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">t_labels</span><span class="c1"># Fix for convolution.permute(0,2,1)</span></div>
 
-<div class="viewcode-block" id="preprocess_and_save_dataset"><a class="viewcode-back" href="../dataset.html#dataset.preprocess_and_save_dataset">[docs]</a><span class="k">def</span> <span class="nf">preprocess_and_save_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">save_path</span><span class="p">,</span><span class="n">transformation</span><span class="p">):</span>
+<div class="viewcode-block" id="preprocess_and_save_dataset"><a class="viewcode-back" href="../dataset.html#dataset.preprocess_and_save_dataset">[docs]</a><span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">preprocess_and_save_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">save_path</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span><span class="n">transformation</span><span class="p">,</span><span class="n">output_shape</span><span class="o">=</span><span class="p">[],</span><span class="n">device</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot;Function for preprocessing and saving datasets.</span>
+
+<span class="sd">    .. important::</span>
+<span class="sd">        This function only works for the SpeechCommands dataset, or for dataset that have those specific entries :  wave, label, rate, speaker_id, utterance_number</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset (torch.utils.data.Dataset): The dataset to be processed</span>
+<span class="sd">        save_path (str): Save path for the preprocessed dataset</span>
+<span class="sd">        transformation (torch.nn.Module): The transformations that will be applied to the data</span>
+<span class="sd">        output_shape (list): Output shape of an element of the transformation. Defaults to [].</span>
+<span class="sd">        device (torch.device): Defaults to torch.device(&#39;cuda&#39; if torch.cuda.is_available() else &#39;cpu&#39;).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        AttributeError: If given output shape is not a list or is an empty list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">save_path</span><span class="p">):</span>
         <span class="c1"># The preprocessed dataset already exists, no need to preprocess again</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The preprocessed dataset already exists, using cache&quot;</span><span class="p">)</span>
         <span class="k">return</span>
     
+    <span class="k">if</span> <span class="n">output_shape</span><span class="o">==</span><span class="p">[]</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_shape</span><span class="p">,</span><span class="nb">list</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Specify the shape of the output of the transform using a list&quot;</span><span class="p">)</span>
+
     <span class="c1"># Create a new HDF5 file to store the preprocessed data</span>
     <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+
         <span class="c1"># Create HDF5 datasets for the waveform, rate, label, speaker_id, and ut_number</span>
-        <span class="n">waveform_dset</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;waveform&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">),</span><span class="mi">64</span><span class="p">,</span><span class="mi">1601</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span>
+        <span class="n">waveform_dset</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;waveform&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">),</span><span class="o">*</span><span class="n">output_shape</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span>
         <span class="n">rate_dset</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;rate&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">),),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
         <span class="n">label_dset</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">),),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
         <span class="n">speaker_id_dset</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;speaker_id&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">),),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">h5py</span><span class="o">.</span><span class="n">special_dtype</span><span class="p">(</span><span class="n">vlen</span><span class="o">=</span><span class="nb">str</span><span class="p">))</span>
@@ -164,18 +185,16 @@
         <span class="k">with</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">),</span><span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Preprocessing dataset&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pbar</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
                 <span class="n">wave</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">speaker_id</span><span class="p">,</span> <span class="n">ut_number</span> <span class="o">=</span> <span class="n">item</span>
-               
+            
                 <span class="c1"># Apply preprocessing to the waveform</span>
                 <span class="n">wave</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">wave</span><span class="p">,</span><span class="n">pad</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">16000</span><span class="o">-</span><span class="n">wave</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-                <span class="n">wave</span> <span class="o">=</span> <span class="n">transformation</span><span class="p">(</span><span class="n">wave</span><span class="p">)</span>
-
+                <span class="n">wave</span> <span class="o">=</span> <span class="n">transformation</span><span class="p">(</span><span class="n">wave</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">))</span>
                 <span class="c1"># Add the preprocessed data to the HDF5 datasets</span>
-                <span class="n">waveform_dset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">wave</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                <span class="n">waveform_dset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">wave</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
                 <span class="n">rate_dset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rate</span>
                 <span class="n">label_dset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
                 <span class="n">speaker_id_dset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">speaker_id</span>
                 <span class="n">ut_number_dset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ut_number</span>
-
                 <span class="c1"># Update the progress bar</span>
                 <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 

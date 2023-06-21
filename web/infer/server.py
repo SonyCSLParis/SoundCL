@@ -3,7 +3,7 @@ sys.path.append('../../src/')
 
 from flask import Flask,render_template,request
 import torch
-from dataset import Scattering
+from transforms import Scattering
 from models import EncDecBaseModel
 
 from torchaudio import load
