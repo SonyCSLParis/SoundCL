@@ -153,15 +153,15 @@
 
 <div class="viewcode-block" id="run"><a class="viewcode-back" href="../main.html#main.run">[docs]</a><span class="nd">@ex</span><span class="o">.</span><span class="n">automain</span>
 <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">device</span><span class="p">,</span><span class="n">opt_type</span><span class="p">,</span><span class="n">learning_rate</span><span class="p">,</span><span class="n">train_batch_size</span><span class="p">,</span><span class="n">eval_batch_size</span><span class="p">,</span><span class="n">train_epochs</span><span class="p">,</span><span class="n">momentum</span><span class="p">,</span><span class="n">w_decay</span><span class="p">,</span><span class="n">betas</span><span class="p">,</span><span class="n">save_model</span><span class="p">,</span><span class="n">_seed</span><span class="p">,</span><span class="n">_run</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Main function of the continual learning framework. This uses `Avalanche lib &lt;https://avalanche.continualai.org/&gt;`_ to create continual learning scenarios.</span>
+    <span class="sd">&quot;&quot;&quot;Main function of the continual learning framework. This uses `Avalanche lib &lt;https://avalanche.continualai.org/&gt;`_ to create continual learning scenarios, and `Sacred &lt;https://github.com/IDSIA/sacred.git&gt;`_</span>
+<span class="sd">    to store the experiments.</span>
 
-<span class="sd">    Summary:</span>
-<span class="sd">        This library uses multiple main concepts to enable continual learning with pytorch :</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        The Avalanche library uses multiple main concepts to enable continual learning with pytorch:</span>
 <span class="sd">        </span>
-<span class="sd">        - Templates :</span>
-<span class="sd">        - Scenarios :</span>
-<span class="sd">        - Plugins :</span>
-<span class="sd">        - Abstractions :</span>
+<span class="sd">        - **Strategies :** Strategies model the pytorch training loop. One can thus create strategies for special loop cycles and algorithms.</span>
+<span class="sd">        - **Scenarios :** A particular setting, i.e. specificities about the continual stream of data, a continual learning algorithm will face. For example we can have class incremental scenarios or task incremental scenarios.</span>
+<span class="sd">        - **Plugins :** A module designed to simply augment a regular continual strategy with custom behavior. Adding evaluators for example or enabling replay learning.</span>
 
 <span class="sd">        For more detailed information about the use of this library check out their main `website &lt;https://avalanche.continualai.org/&gt;`_ and their `API &lt;https://avalanche-api.continualai.org/en/v0.3.1/&gt;`_</span>
 
@@ -198,7 +198,7 @@
     <span class="n">model</span><span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span><span class="mi">35</span><span class="p">)</span>
 
     <span class="c1">#Import dataset</span>
-    <span class="n">DATASET</span><span class="o">=</span><span class="n">Audio_Dataset</span><span class="p">(</span><span class="n">train_transformation</span><span class="o">=</span><span class="n">feature_extractor</span><span class="p">,</span><span class="n">test_transformation</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">DATASET</span><span class="o">=</span><span class="n">Audio_Dataset</span><span class="p">(</span><span class="n">train_transformation</span><span class="o">=</span><span class="n">feature_extractor</span><span class="p">,</span><span class="n">test_transformation</span><span class="o">=</span><span class="n">feature_extractor</span><span class="p">)</span>
 
     <span class="n">command_train</span><span class="o">=</span><span class="n">DATASET</span><span class="p">(</span><span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">pre_process</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">output_shape</span><span class="o">=</span><span class="p">[</span><span class="mi">128</span><span class="p">])</span>
     <span class="n">command_test</span> <span class="o">=</span><span class="n">DATASET</span><span class="p">(</span><span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">pre_process</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">output_shape</span><span class="o">=</span><span class="p">[</span><span class="mi">128</span><span class="p">])</span>

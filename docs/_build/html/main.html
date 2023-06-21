@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2023-06-21T12:19:57+02:00" />
+    <meta property="article:modified_time" content="2023-06-21T12:49:55+02:00" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>main module &mdash; Sound-CL 0.0.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -103,18 +103,18 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="main.run">
 <span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">momentum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_decay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">betas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_run</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.run" title="Permalink to this definition"></a></dt>
-<dd><p>Main function of the continual learning framework. This uses <a class="reference external" href="https://avalanche.continualai.org/">Avalanche lib</a> to create continual learning scenarios.</p>
-<dl>
-<dt>Summary:</dt><dd><p>This library uses multiple main concepts to enable continual learning with pytorch :</p>
+<dd><p>Main function of the continual learning framework. This uses <a class="reference external" href="https://avalanche.continualai.org/">Avalanche lib</a> to create continual learning scenarios, and <a class="reference external" href="https://github.com/IDSIA/sacred.git">Sacred</a>
+to store the experiments.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The Avalanche library uses multiple main concepts to enable continual learning with pytorch:</p>
 <ul class="simple">
-<li><p>Templates :</p></li>
-<li><p>Scenarios :</p></li>
-<li><p>Plugins :</p></li>
-<li><p>Abstractions :</p></li>
+<li><p><strong>Strategies :</strong> Strategies model the pytorch training loop. One can thus create strategies for special loop cycles and algorithms.</p></li>
+<li><p><strong>Scenarios :</strong> A particular setting, i.e. specificities about the continual stream of data, a continual learning algorithm will face. For example we can have class incremental scenarios or task incremental scenarios.</p></li>
+<li><p><strong>Plugins :</strong> A module designed to simply augment a regular continual strategy with custom behavior. Adding evaluators for example or enabling replay learning.</p></li>
 </ul>
 <p>For more detailed information about the use of this library check out their main <a class="reference external" href="https://avalanche.continualai.org/">website</a> and their <a class="reference external" href="https://avalanche-api.continualai.org/en/v0.3.1/">API</a></p>
-</dd>
-</dl>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

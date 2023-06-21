@@ -70,15 +70,15 @@ def cfg():
 
 @ex.automain
 def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epochs,momentum,w_decay,betas,save_model,_seed,_run):
-    """Main function of the continual learning framework. This uses `Avalanche lib <https://avalanche.continualai.org/>`_ to create continual learning scenarios.
+    """Main function of the continual learning framework. This uses `Avalanche lib <https://avalanche.continualai.org/>`_ to create continual learning scenarios, and `Sacred <https://github.com/IDSIA/sacred.git>`_
+    to store the experiments.
 
-    Summary:
-        This library uses multiple main concepts to enable continual learning with pytorch :
+    .. note::
+        The Avalanche library uses multiple main concepts to enable continual learning with pytorch:
         
-        - Templates :
-        - Scenarios :
-        - Plugins :
-        - Abstractions :
+        - **Strategies :** Strategies model the pytorch training loop. One can thus create strategies for special loop cycles and algorithms.
+        - **Scenarios :** A particular setting, i.e. specificities about the continual stream of data, a continual learning algorithm will face. For example we can have class incremental scenarios or task incremental scenarios.
+        - **Plugins :** A module designed to simply augment a regular continual strategy with custom behavior. Adding evaluators for example or enabling replay learning.
 
         For more detailed information about the use of this library check out their main `website <https://avalanche.continualai.org/>`_ and their `API <https://avalanche-api.continualai.org/en/v0.3.1/>`_
 
@@ -115,7 +115,7 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
     model= torch.nn.Linear(128,35)
 
     #Import dataset
-    DATASET=Audio_Dataset(train_transformation=feature_extractor,test_transformation=None)
+    DATASET=Audio_Dataset(train_transformation=feature_extractor,test_transformation=feature_extractor)
 
     command_train=DATASET(train=True,pre_process=True,output_shape=[128])
     command_test =DATASET(train=False,pre_process=True,output_shape=[128])
