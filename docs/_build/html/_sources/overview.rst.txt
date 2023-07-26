@@ -99,7 +99,7 @@ To set up the database and Omniboard, follow these steps in your terminal::
 How to run
 ----------
 
-To the main experiment:
+To run the main experiment:
 
 - Run the `setup.sh` script to create the necessary folders for the environment.
 - Move into the code directory using `cd src`
