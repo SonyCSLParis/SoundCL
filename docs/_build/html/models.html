@@ -52,7 +52,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="webtools.html">Webtools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
@@ -131,6 +130,11 @@
 <dt class="sig sig-object py" id="models.AudioVAE">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">AudioVAE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imgChannels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">featureDim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15656</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zDim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#AudioVAE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.AudioVAE" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code></p>
+<p>A simple naive try at creating and Audio VAE for Generative Replay.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>This doesn’t work really well, because of the poor generative capabilities of this model.</p>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="models.AudioVAE.decoder">
 <span class="sig-name descname"><span class="pre">decoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#AudioVAE.decoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.AudioVAE.decoder" title="Permalink to this definition"></a></dt>
@@ -183,6 +187,11 @@ a batch of samples of size “batch_size”</p>
 <dt class="sig sig-object py" id="models.Circularize">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">Circularize</span></span><a class="reference internal" href="_modules/models.html#Circularize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Circularize" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A try at circularizing the latent space before LDA</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We got 1% less accuracy than regular LDA.</p>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="models.Circularize.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#Circularize.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Circularize.forward" title="Permalink to this definition"></a></dt>
@@ -265,6 +274,7 @@ registered hooks while the latter silently ignores them.</p>
 <dt class="sig sig-object py" id="models.Pool">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">Pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#Pool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Pool" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A simple pooling model to add at the end of a feature extractor</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="models.Pool.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#Pool.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Pool.forward" title="Permalink to this definition"></a></dt>
@@ -285,6 +295,7 @@ registered hooks while the latter silently ignores them.</p>
 <dt class="sig sig-object py" id="models.Scattering_Classifier">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">Scattering_Classifier</span></span><a class="reference internal" href="_modules/models.html#Scattering_Classifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Scattering_Classifier" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A try at directly classifying using a simple scattering classifier without a CNN.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="models.Scattering_Classifier.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#Scattering_Classifier.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Scattering_Classifier.forward" title="Permalink to this definition"></a></dt>

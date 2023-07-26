@@ -2,11 +2,11 @@ from dataset import Audio_Dataset
 from transforms import Scattering
 
 from avalanche.logging import InteractiveLogger, TextLogger, TensorboardLogger
-from avalanche.training.plugins import EvaluationPlugin,EarlyStoppingPlugin,GenerativeReplayPlugin,LwFPlugin,ReplayPlugin,LRSchedulerPlugin,SynapticIntelligencePlugin,GDumbPlugin,CoPEPlugin,AGEMPlugin
+from avalanche.training.plugins import EvaluationPlugin,MIRPlugin,EarlyStoppingPlugin,GenerativeReplayPlugin,LwFPlugin,ReplayPlugin,LRSchedulerPlugin,SynapticIntelligencePlugin,GDumbPlugin,CoPEPlugin,AGEMPlugin
 from avalanche.benchmarks.generators import nc_benchmark
 from avalanche.evaluation.metrics import forgetting_metrics, accuracy_metrics,loss_metrics, timing_metrics, cpu_usage_metrics, confusion_matrix_metrics, gpu_usage_metrics
 from avalanche.training.templates import SupervisedTemplate
-from avalanche.training import JointTraining,Naive,OnlineNaive
+from avalanche.training import JointTraining,Naive,OnlineNaive,ICaRL,ClassBalancedBuffer,icarl
 from avalanche.training.supervised import StreamingLDA
 from avalanche.benchmarks.scenarios import OnlineCLScenario
 
@@ -44,20 +44,22 @@ from s_trees.utils.cls_utils import HTtoRIVER
 from s_trees.learners.ht import HoeffdingTree
 from s_trees.learners.irf import IncrementalRandomForest
 
+from templates.qda import StreamingQDA
+
 #Setting up the experiment
-ex=Experiment('Online cached replay')
+ex=Experiment('Offline last layer 5 fix graphs')
 ex.observers.append(MongoObserver(db_name='Continual-learning'))
 
 @ex.config
 def cfg():
     """Config function for efficient config saving in sacred
     """
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda")
     opt_type='adam'
     learning_rate=0.001
     train_batch_size=128
     eval_batch_size=128
-    train_epochs=1
+    train_epochs=5
     momentum=0.9
     w_decay=0.001
     betas=[0.95, 0.5]
@@ -111,14 +113,12 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
     for param in pretrained.parameters():
         param.requires_grad = False
 
-    feature_extractor=torch.nn.Sequential( pretrained[0],pretrained[1].encoder,models.Pool(128))
-    model= torch.nn.Linear(128,35)
-
+    model=torch.nn.Sequential( pretrained[0],pretrained[1].encoder,models.Pool(128),torch.nn.Linear(128,35))
     #Import dataset
-    DATASET=Audio_Dataset(train_transformation=feature_extractor,test_transformation=feature_extractor)
+    DATASET=Audio_Dataset(train_transformation=None,test_transformation=None)
 
-    command_train=DATASET(train=True,pre_process=True,output_shape=[128])
-    command_test =DATASET(train=False,pre_process=True,output_shape=[128])
+    command_train=DATASET(train=True,pre_process=False,output_shape=[128])
+    command_test =DATASET(train=False,pre_process=False,output_shape=[128])
     #command_train=DATASET.MLCommons(sub_folder="subset2",subset='training')
     #command_test=DATASET.MLCommons(sub_folder="subset2",subset='testing')
     
@@ -144,7 +144,7 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
         cpu_usage_metrics(experience=True),
         confusion_matrix_metrics(num_classes=scenario.n_classes, save_image=False,stream=True),
         gpu_usage_metrics(gpu_id=0,minibatch=True, epoch=True, experience=True, stream=True),
-        loggers=[interactive_logger, text_logger, tb_logger]
+        loggers=[interactive_logger, text_logger,tb_logger]
     )
 
     # Initialize the optimizer
@@ -173,8 +173,8 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
                                                     schedulers=[ torch.optim.lr_scheduler.ConstantLR(optimizer, factor=1, total_iters=int((int(command_train.__len__()/train_batch_size)+1)*train_epochs*0.4)),
                                                                  torch.optim.lr_scheduler.PolynomialLR(optimizer, total_iters=int((int(command_train.__len__()/train_batch_size)+1)*train_epochs*0.6), power=2.0, last_epoch=- 1, verbose=False)],
                                                     milestones=[int((int(command_train.__len__()/train_batch_size)+1)*train_epochs*0.4)])
-
-    plugin_list=[ReplayPlugin(mem_size=200)]#LRSchedulerPlugin(scheduler=scheduler,step_granularity="iteration"),
+    buffer=ClassBalancedBuffer(max_size=20000,adaptive_size=True)
+    plugin_list=[]#LRSchedulerPlugin(scheduler=scheduler,step_granularity="iteration"),
                 #EKFAC_Plugin(network=model)]    
         
     """
@@ -189,8 +189,9 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
         River Template      : RiverTemplate(deep_model=model,online_model=HTtoRIVER(classifier=IncrementalRandomForest(size=10, num_workers=15, att_split_est=True)),criterion=None,input_size=128,train_mb_size=train_batch_size,eval_mb_size=eval_batch_size,device=device,evaluator=EvaluationPlugin(loggers=[interactive_logger, text_logger, tb_logger]))
     """
 
-    cl_strategy= OnlineNaive(model=model,optimizer=optimizer,criterion=CrossEntropyLoss(),train_mb_size=train_batch_size,eval_mb_size=eval_batch_size,device=device,plugins=plugin_list,evaluator=eval_plugin,eval_every=-1)
-
+    #TODO add MIR with natural gradient decent 
+    cl_strategy= JointTraining(model, optimizer,CrossEntropyLoss(), train_mb_size=train_batch_size, eval_mb_size=eval_batch_size,device=device,train_epochs=train_epochs,evaluator=eval_plugin,plugins=plugin_list)
+    
     #Training loop
     logging.info('Starting experiment...')
     results = []
@@ -204,26 +205,6 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
         logging.info('Start of Eval')
         results.append(cl_strategy.eval(scenario.test_stream))
         logging.info('End of Eval')
-
-    elif isinstance(cl_strategy,OnlineNaive):
-        batch_streams= scenario.streams.values()
-        for experience in scenario.train_stream:
-            logging.info("Start of Online experience: "+ str(experience.current_experience))
-            logging.info("Current Classes: "+ str(experience.classes_in_this_experience))
-
-            ocl_scenario = OnlineCLScenario(
-                original_streams=batch_streams,
-                experiences=experience,
-                experience_size=1,
-                access_task_boundaries=False,
-            )
-
-            cl_strategy.train(ocl_scenario.train_stream)
-
-            logging.info('Online training completed')
-            logging.info('Start of Eval')
-            results.append(cl_strategy.eval(scenario.test_stream))
-            logging.info('End of Eval')
     
     else:
         for experience in scenario.train_stream:

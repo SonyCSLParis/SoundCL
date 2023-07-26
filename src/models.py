@@ -41,6 +41,11 @@ class EncDecBaseModel(nn.Module):
 
 
 class AudioVAE(nn.Module,Generator):
+    r"""A simple naive try at creating and Audio VAE for Generative Replay.
+
+    .. attention::
+        This doesn't work really well, because of the poor generative capabilities of this model.
+    """
     def __init__(self, imgChannels=1, featureDim=15656, zDim=256):
         super(AudioVAE, self).__init__()
 
@@ -163,6 +168,8 @@ class M5(nn.Module):
         return F.log_softmax(x, dim=2).squeeze()
     
 class Scattering_Classifier(nn.Module):
+    """A try at directly classifying using a simple scattering classifier without a CNN.
+    """
     def __init__(self):
         super().__init__()
         #Scattering hyperparameters
@@ -209,7 +216,14 @@ if __name__=='__main__':
     print(test_output.size())
 
 class Pool(nn.Module):
+    """A simple pooling model to add at the end of a feature extractor
+    """
     def __init__(self,channel_size):
+        """Init function
+
+        Args:
+            channel_size (int): Since the pooling is done in 1D we have to specify the channel size to retreive the original shape.
+        """
         super().__init__()
         self.pooling=nn.AdaptiveAvgPool1d(1)
         self.channel_size=channel_size
@@ -218,6 +232,11 @@ class Pool(nn.Module):
         return x
 
 class Circularize(nn.Module):
+    r"""A try at circularizing the latent space before LDA
+
+    .. note::
+        We got 1% less accuracy than regular LDA. 
+    """
     def __init__(self) :
         super().__init__()
     def forward(self,x):

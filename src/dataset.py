@@ -25,11 +25,12 @@ def speech_commands_collate(batch):
     Returns:
         batch: return batched data in the form ; audio_tensor,target,task_label
     """
+    #FIXME with precached data we seem to always take this first loop
     if len(batch)==1:
         waveform, label, rate, sid, uid, t_label = batch[0]
         waveform=waveform.squeeze()
         tensor_size=waveform.size(0)
-        size=16000
+        size=128
         if tensor_size < size:
             padding_size = size - tensor_size
             padded_tensor = torch.cat((waveform, torch.zeros(padding_size)), dim=0)
@@ -41,8 +42,10 @@ def speech_commands_collate(batch):
             return waveform.unsqueeze(0),torch.tensor(label).unsqueeze(0),torch.tensor(t_label).unsqueeze(0)
 
     else:
+        
         tensors, targets, t_labels = [], [], []
-        for waveform, label, rate, sid, uid, t_label in batch:
+        
+        for waveform, label, rate, sid, uid, t_label in batch:#FIXME this is only a temporary solution for icarl 
             if isinstance(waveform,np.ndarray):
                 tensors += [torch.from_numpy(waveform)]
             elif isinstance(waveform, torch.Tensor):
@@ -56,8 +59,8 @@ def speech_commands_collate(batch):
         tensors = torch.nn.utils.rnn.pad_sequence(
             tensors, batch_first=True, padding_value=0.0
         )
-        if len(tensors.size()) == 2:  # add feature dimension
-            tensors = tensors.unsqueeze(-1)
+        #if len(tensors.size()) == 2:  # add feature dimension
+        #    tensors = tensors.unsqueeze(-1)
         targets = torch.stack(targets)
         t_labels = torch.stack(t_labels)
         return tensors, targets, t_labels# Fix for convolution.permute(0,2,1)
@@ -242,7 +245,8 @@ class CachedAudio(Dataset):
                 ut_number = f['ut_number'][item]
         else:
             raise ValueError("Unknown data subset. Choose from : training or testing.")
-        return wave, label, rate, speaker_id, ut_number
+        
+        return torch.from_numpy(wave), label, rate, speaker_id, ut_number
     
 class Audio_Dataset():
     """Avalanche audio datasets wrapper.

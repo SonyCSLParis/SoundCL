@@ -24,7 +24,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="References" href="references.html" />
+    <link rel="next" title="src" href="modules.html" />
     <link rel="prev" title="Overview" href="overview.html" /> 
 </head>
 
@@ -51,8 +51,12 @@
               <p class="caption" role="heading"><span class="caption-text">Getting started:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Webtools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Webtools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#collect-app">Collect App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#infer-app">Infer App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-run">How to run</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -86,6 +90,39 @@
              
   <section id="webtools">
 <h1>Webtools<a class="headerlink" href="#webtools" title="Permalink to this heading"></a></h1>
+<p>We implemented additionnal webtools we deemed useful for dataset building and model testing.</p>
+<section id="collect-app">
+<h2>Collect App<a class="headerlink" href="#collect-app" title="Permalink to this heading"></a></h2>
+<p>The Collect app is designed to create data sets and save them in a MongoDB database using the Sacred framework. The choice of Sacred was made due to its compatibility with the Dream European project, ensuring integration and compatibility with the project requirements.</p>
+<p>The Collect app provides functionalities to collect and manage data sets for training and evaluation of audio-like based models. It allows users to perform the following actions:</p>
+<ul class="simple">
+<li><p>Record data: Users can record samples directly through the app.</p></li>
+<li><p>Annotate data: Users can annotate and label the recorded samples to create a labeled data set.</p></li>
+<li><p>Store data: The Collect app securely saves the collected data sets in a MongoDB database, ensuring data integrity and easy retrieval for further model training or evaluation.</p></li>
+</ul>
+</section>
+<section id="infer-app">
+<h2>Infer App<a class="headerlink" href="#infer-app" title="Permalink to this heading"></a></h2>
+<p>The Infer app is designed to test the audio-like based models developed in the project. It allows users to record their voice and send the recorded command to the app. The app then runs the data through the model and outputs the corresponding results. The Infer app provides the following functionalities:</p>
+<ul class="simple">
+<li><p>Record data: Users can record their voice commands through the app.</p></li>
+<li><p>Model inference: The Infer app utilizes the trained model to process the recorded voice command and generate the desired output or prediction.</p></li>
+<li><p>Result display: The app displays the inference results to the user.</p></li>
+</ul>
+<p>Both the Collect and Infer apps are implemented using Flask, a Python web framework.</p>
+</section>
+<section id="how-to-run">
+<h2>How to run<a class="headerlink" href="#how-to-run" title="Permalink to this heading"></a></h2>
+<p>To run the apps run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">project_folder</span><span class="o">/</span>
+<span class="n">python3</span> <span class="n">server</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Be sure to change the model in the Inference App before using.</p>
+</div>
+</section>
 </section>
 
 
@@ -93,7 +130,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="overview.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="references.html" class="btn btn-neutral float-right" title="References" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="modules.html" class="btn btn-neutral float-right" title="src" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

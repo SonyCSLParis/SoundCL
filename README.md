@@ -22,11 +22,11 @@ To access this database and review/compare your experiments you can use a tool l
 
 To run your experiment:
 
-- Run the `setup.sh` script to create the neccesary folders for the environment.
+- Run the `setup.sh` script to create the necessary folders for the environment.
 - Move into the code directory using `cd src`
 - Set the name of your experience and your desired parameters in the `cfg()` function in `main.py`
 - Run the experiment using `python3 main.py`
 
 ## Additionnal web tools
 
-The `/web` directory contains two falsk apps usefull for creating a dataset and testing models on a website. For more info please refer to the `/web/README.md` file.
+The `/web` directory contains two [Flask](https://flask.palletsprojects.com/en/2.3.x/) apps usefull for creating a dataset and testing models on a website. For more info please refer to the `/web/README.md` file.

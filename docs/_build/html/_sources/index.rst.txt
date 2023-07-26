@@ -6,11 +6,12 @@
 Welcome to Sound-CL's documentation!
 ====================================
 
-Add description
+This repository creates a basis upon which one can try out continual learning strategies on the `Google Speech Command Dataset <http://arxiv.org/abs/1804.03209>`_, and any other dataset one would like to implement.
 
 Getting Started
 ===============
-Head to the getting started section for a quick overview of the used libraires and how everything runs.
+Head to the getting started section for a quick overview of the used libraries and how everything runs.
+
 
 .. toctree::
   :caption: Getting started:
@@ -18,7 +19,6 @@ Head to the getting started section for a quick overview of the used libraires a
 
   overview
   webtools
-  references
 
 .. toctree::
    :maxdepth: 2
@@ -36,5 +36,5 @@ Indices and tables
 * :ref:`search`
 
 .. attention::
-   This repository is under heavy developement.
+   This repository is under heavy development.
 

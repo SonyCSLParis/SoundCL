@@ -50,9 +50,16 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Getting started:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#avalanche-lib">Avalanche-Lib</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core-concepts">Core concepts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#logging">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-run">How to run</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="webtools.html">Webtools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -86,6 +93,108 @@
              
   <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h1>
+<p>This page talks about the core concepts used in this repository detailing how they work, so you can get started on running your own continual learning experiences.</p>
+<section id="avalanche-lib">
+<h2>Avalanche-Lib<a class="headerlink" href="#avalanche-lib" title="Permalink to this heading"></a></h2>
+<p>The main Python library used is <a class="reference external" href="https://arxiv.org/abs/2104.00405">Avalanche</a>, an End-To-End library for Continual learning.</p>
+<p>The main advantages of Avalanche are:</p>
+<ul class="simple">
+<li><p>Shared &amp; Coherent Codebase</p></li>
+<li><p>Errors Reduction</p></li>
+<li><p>Faster Prototyping</p></li>
+<li><p>Improved Reproducibility &amp; Portability</p></li>
+<li><p>Improved Modularity</p></li>
+<li><p>Increased Efficiency &amp; Scalability</p></li>
+</ul>
+<section id="core-concepts">
+<h3>Core concepts<a class="headerlink" href="#core-concepts" title="Permalink to this heading"></a></h3>
+<p>The Avalanche library uses multiple main concepts to enable continual learning with Pytorch:</p>
+<ul class="simple">
+<li><p><strong>Strategies:</strong> Strategies model the Pytorch training loop. One can thus create strategies for special loop cycles and algorithms.</p></li>
+<li><p><strong>Scenarios:</strong> A particular setting, i.e. specificities about the continual stream of data, a continual learning algorithm will face. For example, we can have class incremental scenarios or task incremental scenarios.</p></li>
+<li><p><strong>Plugins:</strong> A module designed to simply augment a regular continual strategy with custom behavior. Adding evaluators, for example, or enabling replay learning.</p></li>
+</ul>
+<p>For more detailed information about the use of this library, check out their main <a class="reference external" href="https://avalanche.continualai.org/">website</a> and their <a class="reference external" href="https://avalanche-api.continualai.org/en/v0.3.1/">API</a></p>
+<p>Here is an example of a basic training with experience replay taken from their website:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torch.optim</span> <span class="kn">import</span> <span class="n">SGD</span>
+<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">CrossEntropyLoss</span>
+<span class="kn">from</span> <span class="nn">avalanche.models</span> <span class="kn">import</span> <span class="n">SimpleMLP</span>
+<span class="kn">from</span> <span class="nn">avalanche.training.supervised</span> <span class="kn">import</span> <span class="n">Naive</span>
+<span class="kn">from</span> <span class="nn">avalanche.benchmarks.classic</span> <span class="kn">import</span> <span class="n">SplitMNIST</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">SimpleMLP</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="n">criterion</span> <span class="o">=</span> <span class="n">CrossEntropyLoss</span><span class="p">()</span>
+
+<span class="c1"># scenario</span>
+<span class="n">benchmark</span> <span class="o">=</span> <span class="n">SplitMNIST</span><span class="p">(</span><span class="n">n_experiences</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># evaluation plugins and loggers</span>
+
+<span class="n">eval_plugin</span> <span class="o">=</span> <span class="n">EvaluationPlugin</span><span class="p">(</span>
+    <span class="n">accuracy_metrics</span><span class="p">(</span><span class="n">minibatch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">experience</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">loss_metrics</span><span class="p">(</span><span class="n">minibatch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">experience</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">timing_metrics</span><span class="p">(</span><span class="n">epoch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">epoch_running</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">forgetting_metrics</span><span class="p">(</span><span class="n">experience</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">cpu_usage_metrics</span><span class="p">(</span><span class="n">experience</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">confusion_matrix_metrics</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="n">scenario</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">save_image</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">gpu_usage_metrics</span><span class="p">(</span><span class="n">gpu_id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">minibatch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">experience</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">loggers</span><span class="o">=</span><span class="p">[</span><span class="n">InteractiveLogger</span><span class="p">(),</span><span class="n">TensorboardLogger</span><span class="p">(</span><span class="n">tb_log_dir</span><span class="o">=</span><span class="s1">&#39;../tb_data&#39;</span><span class="p">)]</span>
+<span class="p">)</span>
+
+<span class="n">cl_strategy</span> <span class="o">=</span> <span class="n">Naive</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span>
+    <span class="n">train_mb_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">train_epochs</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">eval_mb_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">plugins</span><span class="o">=</span><span class="p">[</span><span class="n">ReplayPlugin</span><span class="p">(</span><span class="n">mem_size</span><span class="o">=</span><span class="mi">100</span><span class="p">)],</span><span class="n">evaluator</span><span class="o">=</span><span class="n">eval_plugin</span>
+<span class="p">)</span>
+
+<span class="c1"># TRAINING LOOP</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Starting experiment...&#39;</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">experience</span> <span class="ow">in</span> <span class="n">benchmark</span><span class="o">.</span><span class="n">train_stream</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start of experience: &quot;</span><span class="p">,</span> <span class="n">experience</span><span class="o">.</span><span class="n">current_experience</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current Classes: &quot;</span><span class="p">,</span> <span class="n">experience</span><span class="o">.</span><span class="n">classes_in_this_experience</span><span class="p">)</span>
+
+    <span class="n">cl_strategy</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">experience</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Training completed&#39;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Computing accuracy on the whole test set&#39;</span><span class="p">)</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cl_strategy</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">benchmark</span><span class="o">.</span><span class="n">test_stream</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="logging">
+<h2>Logging<a class="headerlink" href="#logging" title="Permalink to this heading"></a></h2>
+<p>In this project, we leverage the <a class="reference external" href="https://github.com/IDSIA/sacred">Sacred</a> Python module to ensure comprehensive logging. All logged data is stored in a user-specified <a class="reference external" href="https://www.mongodb.com/">MongoDB</a> database. 0</p>
+<p>The use of Sacred with MongoDB brings several advantages:</p>
+<ul class="simple">
+<li><p><strong>Comprehensive Parameter Tracking</strong>: With Sacred, every experiment’s parameters are recorded, allowing for a detailed overview of each run’s setup.</p></li>
+<li><p><strong>Flexible Experiment Replication</strong>: Easily rerun experiments with various configurations, enabling efficient exploration of different settings.</p></li>
+<li><p><strong>Stored Run Configurations</strong>: The database efficiently stores configurations for individual runs, ensuring easy access and comparison between experiments.</p></li>
+<li><p><strong>Result Reproducibility</strong>: By maintaining a log of all the experiments and their respective parameters, you can reproduce any result necessary.</p></li>
+</ul>
+<p>To access and review your experiments in the MongoDB database, we recommend using <a class="reference external" href="https://github.com/vivekratnavel/omniboard">Omniboard</a>.
+To set up the database and Omniboard, follow these steps in your terminal:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">start</span> <span class="n">mongod</span><span class="o">.</span><span class="n">service</span>
+<span class="o">./</span><span class="n">node_modules</span><span class="o">/.</span><span class="n">bin</span><span class="o">/</span><span class="n">omniboard</span> <span class="o">-</span><span class="n">m</span> <span class="n">localhost</span><span class="p">:</span><span class="mi">27017</span><span class="p">:</span><span class="n">Continual</span><span class="o">-</span><span class="n">learning</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure to modify the host and database name accordingly in line two to match your specific setup.</p>
+</div>
+</section>
+<section id="how-to-run">
+<h2>How to run<a class="headerlink" href="#how-to-run" title="Permalink to this heading"></a></h2>
+<p>To the main experiment:</p>
+<ul class="simple">
+<li><p>Run the <cite>setup.sh</cite> script to create the necessary folders for the environment.</p></li>
+<li><p>Move into the code directory using <cite>cd src</cite></p></li>
+<li><p>Set the name of your experience and your desired parameters in the <cite>cfg()</cite> function in <cite>main.py</cite></p></li>
+<li><p>Run the experiment using <cite>python3 main.py</cite></p></li>
+</ul>
+</section>
 </section>
 
 

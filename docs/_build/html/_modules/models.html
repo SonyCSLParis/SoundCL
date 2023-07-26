@@ -48,7 +48,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../webtools.html">Webtools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -124,6 +123,11 @@
 
 
 <div class="viewcode-block" id="AudioVAE"><a class="viewcode-back" href="../models.html#models.AudioVAE">[docs]</a><span class="k">class</span> <span class="nc">AudioVAE</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span><span class="n">Generator</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;A simple naive try at creating and Audio VAE for Generative Replay.</span>
+
+<span class="sd">    .. attention::</span>
+<span class="sd">        This doesn&#39;t work really well, because of the poor generative capabilities of this model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">imgChannels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">featureDim</span><span class="o">=</span><span class="mi">15656</span><span class="p">,</span> <span class="n">zDim</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">AudioVAE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -246,6 +250,8 @@
         <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span></div></div>
     
 <div class="viewcode-block" id="Scattering_Classifier"><a class="viewcode-back" href="../models.html#models.Scattering_Classifier">[docs]</a><span class="k">class</span> <span class="nc">Scattering_Classifier</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A try at directly classifying using a simple scattering classifier without a CNN.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="c1">#Scattering hyperparameters</span>
@@ -292,7 +298,14 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">test_output</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
 
 <div class="viewcode-block" id="Pool"><a class="viewcode-back" href="../models.html#models.Pool">[docs]</a><span class="k">class</span> <span class="nc">Pool</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A simple pooling model to add at the end of a feature extractor</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">channel_size</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Init function</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            channel_size (int): Since the pooling is done in 1D we have to specify the channel size to retreive the original shape.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span><span class="o">=</span><span class="n">nn</span><span class="o">.</span><span class="n">AdaptiveAvgPool1d</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">channel_size</span><span class="o">=</span><span class="n">channel_size</span>
@@ -301,6 +314,11 @@
         <span class="k">return</span> <span class="n">x</span></div></div>
 
 <div class="viewcode-block" id="Circularize"><a class="viewcode-back" href="../models.html#models.Circularize">[docs]</a><span class="k">class</span> <span class="nc">Circularize</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;A try at circularizing the latent space before LDA</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        We got 1% less accuracy than regular LDA. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 <div class="viewcode-block" id="Circularize.forward"><a class="viewcode-back" href="../models.html#models.Circularize.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>

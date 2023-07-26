@@ -48,7 +48,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../webtools.html">Webtools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -108,11 +107,12 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        batch: return batched data in the form ; audio_tensor,target,task_label</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#FIXME with precached data we seem to always take this first loop</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
         <span class="n">waveform</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">sid</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">t_label</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">waveform</span><span class="o">=</span><span class="n">waveform</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
         <span class="n">tensor_size</span><span class="o">=</span><span class="n">waveform</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">size</span><span class="o">=</span><span class="mi">16000</span>
+        <span class="n">size</span><span class="o">=</span><span class="mi">128</span>
         <span class="k">if</span> <span class="n">tensor_size</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">:</span>
             <span class="n">padding_size</span> <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="n">tensor_size</span>
             <span class="n">padded_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">waveform</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">padding_size</span><span class="p">)),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -124,8 +124,10 @@
             <span class="k">return</span> <span class="n">waveform</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">label</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">t_label</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
+        
         <span class="n">tensors</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">t_labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">waveform</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">sid</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">t_label</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">:</span>
+        
+        <span class="k">for</span> <span class="n">waveform</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">sid</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">t_label</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">:</span><span class="c1">#FIXME this is only a temporary solution for icarl </span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">waveform</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
                 <span class="n">tensors</span> <span class="o">+=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">waveform</span><span class="p">)]</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">waveform</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
@@ -139,8 +141,8 @@
         <span class="n">tensors</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">pad_sequence</span><span class="p">(</span>
             <span class="n">tensors</span><span class="p">,</span> <span class="n">batch_first</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">padding_value</span><span class="o">=</span><span class="mf">0.0</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tensors</span><span class="o">.</span><span class="n">size</span><span class="p">())</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># add feature dimension</span>
-            <span class="n">tensors</span> <span class="o">=</span> <span class="n">tensors</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1">#if len(tensors.size()) == 2:  # add feature dimension</span>
+        <span class="c1">#    tensors = tensors.unsqueeze(-1)</span>
         <span class="n">targets</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
         <span class="n">t_labels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">t_labels</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tensors</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">t_labels</span><span class="c1"># Fix for convolution.permute(0,2,1)</span></div>
@@ -325,7 +327,8 @@
                 <span class="n">ut_number</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;ut_number&#39;</span><span class="p">][</span><span class="n">item</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown data subset. Choose from : training or testing.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">wave</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">speaker_id</span><span class="p">,</span> <span class="n">ut_number</span></div>
+        
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">wave</span><span class="p">),</span> <span class="n">label</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">speaker_id</span><span class="p">,</span> <span class="n">ut_number</span></div>
     
 <div class="viewcode-block" id="Audio_Dataset"><a class="viewcode-back" href="../dataset.html#dataset.Audio_Dataset">[docs]</a><span class="k">class</span> <span class="nc">Audio_Dataset</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Avalanche audio datasets wrapper.</span>
