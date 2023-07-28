@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2023-07-28T16:19:10+02:00" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dataset module &mdash; Sound-CL 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/clipboard.min.js"></script>
+        <script src="_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="infer module" href="infer.html" />
+    <link rel="prev" title="main module" href="main.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Sound-CL
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webtools.html">Webtools</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">dataset module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dataset.Audio_Dataset"><code class="docutils literal notranslate"><span class="pre">Audio_Dataset</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#dataset.Audio_Dataset.MLCommons"><code class="docutils literal notranslate"><span class="pre">Audio_Dataset.MLCommons()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dataset.Audio_Dataset.SpeechCommands"><code class="docutils literal notranslate"><span class="pre">Audio_Dataset.SpeechCommands()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#dataset.CachedAudio"><code class="docutils literal notranslate"><span class="pre">CachedAudio</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dataset.MLcommonsData"><code class="docutils literal notranslate"><span class="pre">MLcommonsData</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#dataset.MLcommonsData.get_metadata"><code class="docutils literal notranslate"><span class="pre">MLcommonsData.get_metadata()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#dataset.SpeechCommandsData"><code class="docutils literal notranslate"><span class="pre">SpeechCommandsData</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dataset.preprocess_and_save_dataset"><code class="docutils literal notranslate"><span class="pre">preprocess_and_save_dataset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dataset.speech_commands_collate"><code class="docutils literal notranslate"><span class="pre">speech_commands_collate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="infer.html">infer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html">transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html">models module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matchbox.html">matchbox package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugins.html">plugins package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">templates package</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Sound-CL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">src</a></li>
+      <li class="breadcrumb-item active">dataset module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/dataset.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-dataset">
+<span id="dataset-module"></span><h1>dataset module<a class="headerlink" href="#module-dataset" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataset.Audio_Dataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataset.</span></span><span class="sig-name descname"><span class="pre">Audio_Dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#Audio_Dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataset.Audio_Dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Avalanche audio datasets wrapper.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataset.Audio_Dataset.MLCommons">
+<span class="sig-name descname"><span class="pre">MLCommons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'../dataset/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'subset2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'training'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#Audio_Dataset.MLCommons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataset.Audio_Dataset.MLCommons" title="Permalink to this definition"></a></dt>
+<dd><p>MLCommons dataset wrapper function for avalanche lib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<em>str</em><em>, </em><em>optional</em>) – dataset root location. Defaults to ‘../dataset/’.</p></li>
+<li><p><strong>sub_folder</strong> (<em>str</em><em>, </em><em>optional</em>) – dataset subset. Defaults to “subset2”.</p></li>
+<li><p><strong>subset</strong> (<em>str</em><em>, </em><em>optional</em>) – one of ‘training’, ‘validation’, ‘testing’. Defaults to “training”.</p></li>
+<li><p><strong>transforms</strong> (<em>_type_</em><em>, </em><em>optional</em>) – transformations applied to the data. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Avalanche’s classification dataset</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ClassificationDataset</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataset.Audio_Dataset.SpeechCommands">
+<span class="sig-name descname"><span class="pre">SpeechCommands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PosixPath('/home/joe/.avalanche/data/speechcommands')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'speech_commands_v0.02'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_process</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#Audio_Dataset.SpeechCommands"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataset.Audio_Dataset.SpeechCommands" title="Permalink to this definition"></a></dt>
+<dd><p>SpeechCommands dataset wrapper function for avalanche lib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<em>str</em><em>, </em><em>optional</em>) – dataset root location. Defaults to default_dataset_location(“speechcommands”).</p></li>
+<li><p><strong>url</strong> (<em>str</em><em>, </em><em>optional</em>) – version name of the dataset. Defaults to “speech_commands_v0.02”.</p></li>
+<li><p><strong>download</strong> (<em>bool</em><em>, </em><em>optional</em>) – automatically download the dataset, if not present. Defaults to True.</p></li>
+<li><p><strong>subset</strong> (<em>str</em><em>, </em><em>optional</em>) – one of ‘training’, ‘validation’, ‘testing’. Defaults to None.</p></li>
+<li><p><strong>transforms</strong> (<em>torch.nn.Module</em><em>, </em><em>optional</em>) – transformations applied to the data. Defaults to None.</p></li>
+<li><p><strong>pre_process</strong> (<em>bool</em><em>, </em><em>optional</em>) – Enable prior preprocessing and saving of the dataset. Defaults to True.</p></li>
+<li><p><strong>output_shape</strong> (<em>list</em>) – Output shape of a transformed element.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If an unkown subset is chosen</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Avalanche’s classification dataset</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ClassificationDataset</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dataset.CachedAudio">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataset.</span></span><span class="sig-name descname"><span class="pre">CachedAudio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_cache_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'../dataset_cache/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_cache_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'../dataset_cache/'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#CachedAudio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataset.CachedAudio" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></p>
+<p>Wrapper for cached <a class="reference external" href="https://www.h5py.org/">hdf5</a> audio datasets.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dataset.MLcommonsData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataset.</span></span><span class="sig-name descname"><span class="pre">MLcommonsData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder_in_archive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MLCommons'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#MLcommonsData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataset.MLcommonsData" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for a subset of the MlCommons <a class="reference external" href="https://mlcommons.org/en/multilingual-spoken-words/">Multilingual Spoken Words dataset</a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataset.MLcommonsData.get_metadata">
+<span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/dataset.html#MLcommonsData.get_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataset.MLcommonsData.get_metadata" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dataset.SpeechCommandsData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataset.</span></span><span class="sig-name descname"><span class="pre">SpeechCommandsData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#SpeechCommandsData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataset.SpeechCommandsData" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SPEECHCOMMANDS</span></code></p>
+<p>Wrapper for torchaudio’s speechcommand dataset.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dataset.preprocess_and_save_dataset">
+<span class="sig-prename descclassname"><span class="pre">dataset.</span></span><span class="sig-name descname"><span class="pre">preprocess_and_save_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#preprocess_and_save_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataset.preprocess_and_save_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Function for preprocessing and saving datasets.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This function only works for the SpeechCommands dataset, or for dataset that have those specific entries :  wave, label, rate, speaker_id, utterance_number</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<em>torch.utils.data.Dataset</em>) – The dataset to be processed</p></li>
+<li><p><strong>save_path</strong> (<em>str</em>) – Save path for the preprocessed dataset</p></li>
+<li><p><strong>transformation</strong> (<em>torch.nn.Module</em>) – The transformations that will be applied to the data</p></li>
+<li><p><strong>output_shape</strong> (<em>list</em>) – Output shape of an element of the transformation. Defaults to [].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AttributeError</strong> – If given output shape is not a list or is an empty list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dataset.speech_commands_collate">
+<span class="sig-prename descclassname"><span class="pre">dataset.</span></span><span class="sig-name descname"><span class="pre">speech_commands_collate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#speech_commands_collate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataset.speech_commands_collate" title="Permalink to this definition"></a></dt>
+<dd><p>Collate function for setting up the dataloader</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>batch</strong> (<em>int</em>) – batch size</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>return batched data in the form ; audio_tensor,target,task_label</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>batch</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="main.html" class="btn btn-neutral float-left" title="main module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="infer.html" class="btn btn-neutral float-right" title="infer module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Joe Khawand.
+      <span class="lastupdated">Last updated on Jul 28, 2023.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
