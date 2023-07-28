@@ -13,6 +13,13 @@ from avalanche.models import FeatureExtractorBackbone
 
 
 class StreamingQDA(SupervisedTemplate):
+    r"""First try at streaming QDA.
+
+    .. attention::
+        Please fix the implementation by using the final code from https://github.com/SonyCSLParis/Deep_SRDA
+    
+    """
+    #FIXME
 
     def __init__(
         self,

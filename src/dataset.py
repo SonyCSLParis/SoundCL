@@ -44,14 +44,27 @@ def speech_commands_collate(batch):
     else:
         
         tensors, targets, t_labels = [], [], []
-        
+
         for waveform, label, rate, sid, uid, t_label in batch:#FIXME this is only a temporary solution for icarl 
+
             if isinstance(waveform,np.ndarray):
-                tensors += [torch.from_numpy(waveform)]
+                waveform = torch.from_numpy(waveform)
             elif isinstance(waveform, torch.Tensor):
-                tensors += [waveform]
+                pass
             else:
                 raise ValueError("Waveform must be saved as torch.tensor or np.array")
+            
+            tensor_size=waveform.size(0)
+            size=16000
+            
+            if tensor_size < size:
+                padding_size = size - tensor_size
+                waveform = torch.cat((waveform, torch.zeros(padding_size)), dim=0)
+            elif tensor_size > size:
+                waveform = waveform[:size]
+        
+            tensors += [waveform]
+
             targets += [torch.tensor(label)]
             t_labels += [torch.tensor(t_label)]
 

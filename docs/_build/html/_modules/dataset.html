@@ -126,14 +126,27 @@
     <span class="k">else</span><span class="p">:</span>
         
         <span class="n">tensors</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">t_labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
-        
+
         <span class="k">for</span> <span class="n">waveform</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">sid</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">t_label</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">:</span><span class="c1">#FIXME this is only a temporary solution for icarl </span>
+
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">waveform</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-                <span class="n">tensors</span> <span class="o">+=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">waveform</span><span class="p">)]</span>
+                <span class="n">waveform</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">waveform</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">waveform</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
-                <span class="n">tensors</span> <span class="o">+=</span> <span class="p">[</span><span class="n">waveform</span><span class="p">]</span>
+                <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Waveform must be saved as torch.tensor or np.array&quot;</span><span class="p">)</span>
+            
+            <span class="n">tensor_size</span><span class="o">=</span><span class="n">waveform</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">size</span><span class="o">=</span><span class="mi">16000</span>
+            
+            <span class="k">if</span> <span class="n">tensor_size</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">:</span>
+                <span class="n">padding_size</span> <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="n">tensor_size</span>
+                <span class="n">waveform</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">waveform</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">padding_size</span><span class="p">)),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">tensor_size</span> <span class="o">&gt;</span> <span class="n">size</span><span class="p">:</span>
+                <span class="n">waveform</span> <span class="o">=</span> <span class="n">waveform</span><span class="p">[:</span><span class="n">size</span><span class="p">]</span>
+        
+            <span class="n">tensors</span> <span class="o">+=</span> <span class="p">[</span><span class="n">waveform</span><span class="p">]</span>
+
             <span class="n">targets</span> <span class="o">+=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">label</span><span class="p">)]</span>
             <span class="n">t_labels</span> <span class="o">+=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">t_label</span><span class="p">)]</span>
 

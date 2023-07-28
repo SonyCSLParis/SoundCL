@@ -88,7 +88,7 @@
 <span class="kn">from</span> <span class="nn">avalanche.benchmarks.generators</span> <span class="kn">import</span> <span class="n">nc_benchmark</span>
 <span class="kn">from</span> <span class="nn">avalanche.evaluation.metrics</span> <span class="kn">import</span> <span class="n">forgetting_metrics</span><span class="p">,</span> <span class="n">accuracy_metrics</span><span class="p">,</span><span class="n">loss_metrics</span><span class="p">,</span> <span class="n">timing_metrics</span><span class="p">,</span> <span class="n">cpu_usage_metrics</span><span class="p">,</span> <span class="n">confusion_matrix_metrics</span><span class="p">,</span> <span class="n">gpu_usage_metrics</span>
 <span class="kn">from</span> <span class="nn">avalanche.training.templates</span> <span class="kn">import</span> <span class="n">SupervisedTemplate</span>
-<span class="kn">from</span> <span class="nn">avalanche.training</span> <span class="kn">import</span> <span class="n">JointTraining</span><span class="p">,</span><span class="n">Naive</span><span class="p">,</span><span class="n">OnlineNaive</span><span class="p">,</span><span class="n">ICaRL</span><span class="p">,</span><span class="n">ClassBalancedBuffer</span><span class="p">,</span><span class="n">icarl</span>
+<span class="kn">from</span> <span class="nn">avalanche.training</span> <span class="kn">import</span> <span class="n">JointTraining</span><span class="p">,</span><span class="n">Naive</span><span class="p">,</span><span class="n">OnlineNaive</span><span class="p">,</span><span class="n">ICaRL</span><span class="p">,</span><span class="n">ClassBalancedBuffer</span><span class="p">,</span><span class="n">icarl</span><span class="p">,</span><span class="n">MIR</span>
 <span class="kn">from</span> <span class="nn">avalanche.training.supervised</span> <span class="kn">import</span> <span class="n">StreamingLDA</span>
 <span class="kn">from</span> <span class="nn">avalanche.benchmarks.scenarios</span> <span class="kn">import</span> <span class="n">OnlineCLScenario</span>
 
@@ -127,9 +127,10 @@
 <span class="kn">from</span> <span class="nn">s_trees.learners.irf</span> <span class="kn">import</span> <span class="n">IncrementalRandomForest</span>
 
 <span class="kn">from</span> <span class="nn">templates.qda</span> <span class="kn">import</span> <span class="n">StreamingQDA</span>
+<span class="kn">from</span> <span class="nn">templates.tricks</span> <span class="kn">import</span> <span class="n">Supervised_LB_Template</span><span class="p">,</span><span class="n">Supervised_SS_Template</span>
 
 <span class="c1">#Setting up the experiment</span>
-<span class="n">ex</span><span class="o">=</span><span class="n">Experiment</span><span class="p">(</span><span class="s1">&#39;Offline last layer 5 fix graphs&#39;</span><span class="p">)</span>
+<span class="n">ex</span><span class="o">=</span><span class="n">Experiment</span><span class="p">(</span><span class="s1">&#39;Online EKFAC balanced BIG Replay with SS with sgd&#39;</span><span class="p">)</span>
 <span class="n">ex</span><span class="o">.</span><span class="n">observers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MongoObserver</span><span class="p">(</span><span class="n">db_name</span><span class="o">=</span><span class="s1">&#39;Continual-learning&#39;</span><span class="p">))</span>
 
 <span class="nd">@ex</span><span class="o">.</span><span class="n">config</span>
@@ -137,11 +138,11 @@
     <span class="sd">&quot;&quot;&quot;Config function for efficient config saving in sacred</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>
-    <span class="n">opt_type</span><span class="o">=</span><span class="s1">&#39;adam&#39;</span>
-    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.001</span>
+    <span class="n">opt_type</span><span class="o">=</span><span class="s1">&#39;novo&#39;</span>
+    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.1</span>
     <span class="n">train_batch_size</span><span class="o">=</span><span class="mi">128</span>
     <span class="n">eval_batch_size</span><span class="o">=</span><span class="mi">128</span>
-    <span class="n">train_epochs</span><span class="o">=</span><span class="mi">5</span>
+    <span class="n">train_epochs</span><span class="o">=</span><span class="mi">1</span>
     <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span>
     <span class="n">w_decay</span><span class="o">=</span><span class="mf">0.001</span>
     <span class="n">betas</span><span class="o">=</span><span class="p">[</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
@@ -255,9 +256,9 @@
                                                     <span class="n">schedulers</span><span class="o">=</span><span class="p">[</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="o">.</span><span class="n">ConstantLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">total_iters</span><span class="o">=</span><span class="nb">int</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">command_train</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span><span class="o">/</span><span class="n">train_batch_size</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">train_epochs</span><span class="o">*</span><span class="mf">0.4</span><span class="p">)),</span>
                                                                  <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="o">.</span><span class="n">PolynomialLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">total_iters</span><span class="o">=</span><span class="nb">int</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">command_train</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span><span class="o">/</span><span class="n">train_batch_size</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">train_epochs</span><span class="o">*</span><span class="mf">0.6</span><span class="p">),</span> <span class="n">power</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">last_epoch</span><span class="o">=-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)],</span>
                                                     <span class="n">milestones</span><span class="o">=</span><span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">command_train</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span><span class="o">/</span><span class="n">train_batch_size</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">train_epochs</span><span class="o">*</span><span class="mf">0.4</span><span class="p">)])</span>
-    <span class="n">buffer</span><span class="o">=</span><span class="n">ClassBalancedBuffer</span><span class="p">(</span><span class="n">max_size</span><span class="o">=</span><span class="mi">20000</span><span class="p">,</span><span class="n">adaptive_size</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">plugin_list</span><span class="o">=</span><span class="p">[]</span><span class="c1">#LRSchedulerPlugin(scheduler=scheduler,step_granularity=&quot;iteration&quot;),</span>
-                <span class="c1">#EKFAC_Plugin(network=model)]    </span>
+    <span class="n">buffer_policy</span><span class="o">=</span><span class="n">ClassBalancedBuffer</span><span class="p">(</span><span class="n">max_size</span><span class="o">=</span><span class="mi">20000</span><span class="p">,</span><span class="n">adaptive_size</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plugin_list</span><span class="o">=</span><span class="p">[</span><span class="n">ReplayPlugin</span><span class="p">(</span><span class="mi">20000</span><span class="p">,</span><span class="n">storage_policy</span><span class="o">=</span><span class="n">buffer_policy</span><span class="p">),</span><span class="n">EKFAC_Plugin</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="n">model</span><span class="p">)]</span><span class="c1">#LRSchedulerPlugin(scheduler=scheduler,step_granularity=&quot;iteration&quot;),</span>
+      
         
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">      Choose the continual learning startegy.</span>
@@ -271,14 +272,14 @@
 <span class="sd">        River Template      : RiverTemplate(deep_model=model,online_model=HTtoRIVER(classifier=IncrementalRandomForest(size=10, num_workers=15, att_split_est=True)),criterion=None,input_size=128,train_mb_size=train_batch_size,eval_mb_size=eval_batch_size,device=device,evaluator=EvaluationPlugin(loggers=[interactive_logger, text_logger, tb_logger]))</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1">#TODO add MIR with natural gradient decent </span>
-    <span class="n">cl_strategy</span><span class="o">=</span> <span class="n">JointTraining</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span><span class="n">CrossEntropyLoss</span><span class="p">(),</span> <span class="n">train_mb_size</span><span class="o">=</span><span class="n">train_batch_size</span><span class="p">,</span> <span class="n">eval_mb_size</span><span class="o">=</span><span class="n">eval_batch_size</span><span class="p">,</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span><span class="n">train_epochs</span><span class="o">=</span><span class="n">train_epochs</span><span class="p">,</span><span class="n">evaluator</span><span class="o">=</span><span class="n">eval_plugin</span><span class="p">,</span><span class="n">plugins</span><span class="o">=</span><span class="n">plugin_list</span><span class="p">)</span>
+
+    <span class="n">cl_strategy</span><span class="o">=</span> <span class="n">Supervised_SS_Template</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span><span class="n">CrossEntropyLoss</span><span class="p">(),</span> <span class="n">train_mb_size</span><span class="o">=</span><span class="n">train_batch_size</span><span class="p">,</span> <span class="n">eval_mb_size</span><span class="o">=</span><span class="n">eval_batch_size</span><span class="p">,</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span><span class="n">train_epochs</span><span class="o">=</span><span class="n">train_epochs</span><span class="p">,</span><span class="n">evaluator</span><span class="o">=</span><span class="n">eval_plugin</span><span class="p">,</span><span class="n">plugins</span><span class="o">=</span><span class="n">plugin_list</span><span class="p">)</span>
     
     <span class="c1">#Training loop</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Starting experiment...&#39;</span><span class="p">)</span>
     <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="c1"># Check if the user requested Joint training, Online training, or regular Supervised Template</span>
+    <span class="c1"># Check if the user requested Joint training or regular Supervised Template</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cl_strategy</span><span class="p">,</span><span class="n">JointTraining</span><span class="p">):</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Start of joint training: &quot;</span><span class="p">)</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">cl_strategy</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">scenario</span><span class="o">.</span><span class="n">train_stream</span><span class="p">)</span>
@@ -298,10 +299,14 @@
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Training completed&#39;</span><span class="p">)</span>
 
             <span class="c1"># eval </span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Start of Eval&#39;</span><span class="p">)</span>
-            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cl_strategy</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">scenario</span><span class="o">.</span><span class="n">test_stream</span><span class="p">))</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;End of Eval&#39;</span><span class="p">)</span>
+            <span class="c1">#logging.info(&#39;Start of Eval&#39;)</span>
+            <span class="c1">#results.append(cl_strategy.eval(scenario.test_stream))</span>
+            <span class="c1">#logging.info(&#39;End of Eval&#39;)</span>
 
+    <span class="c1">#TODO comment those next three lines and uncomment the previous ones if you&#39;re not using the separated softmax trick</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Start of Eval&#39;</span><span class="p">)</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cl_strategy</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">scenario</span><span class="o">.</span><span class="n">test_stream</span><span class="p">))</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;End of Eval&#39;</span><span class="p">)</span>
 
     <span class="c1"># Logging metrics and artifacts into sacred</span>
 

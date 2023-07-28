@@ -6,7 +6,7 @@ from avalanche.training.plugins import EvaluationPlugin,MIRPlugin,EarlyStoppingP
 from avalanche.benchmarks.generators import nc_benchmark
 from avalanche.evaluation.metrics import forgetting_metrics, accuracy_metrics,loss_metrics, timing_metrics, cpu_usage_metrics, confusion_matrix_metrics, gpu_usage_metrics
 from avalanche.training.templates import SupervisedTemplate
-from avalanche.training import JointTraining,Naive,OnlineNaive,ICaRL,ClassBalancedBuffer,icarl
+from avalanche.training import JointTraining,Naive,OnlineNaive,ICaRL,ClassBalancedBuffer,icarl,MIR
 from avalanche.training.supervised import StreamingLDA
 from avalanche.benchmarks.scenarios import OnlineCLScenario
 
@@ -45,9 +45,10 @@ from s_trees.learners.ht import HoeffdingTree
 from s_trees.learners.irf import IncrementalRandomForest
 
 from templates.qda import StreamingQDA
+from templates.tricks import Supervised_LB_Template,Supervised_SS_Template
 
 #Setting up the experiment
-ex=Experiment('Offline last layer 5 fix graphs')
+ex=Experiment('Online EKFAC balanced BIG Replay with SS with sgd')
 ex.observers.append(MongoObserver(db_name='Continual-learning'))
 
 @ex.config
@@ -55,11 +56,11 @@ def cfg():
     """Config function for efficient config saving in sacred
     """
     device = torch.device("cuda")
-    opt_type='adam'
-    learning_rate=0.001
+    opt_type='novo'
+    learning_rate=0.1
     train_batch_size=128
     eval_batch_size=128
-    train_epochs=5
+    train_epochs=1
     momentum=0.9
     w_decay=0.001
     betas=[0.95, 0.5]
@@ -173,9 +174,9 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
                                                     schedulers=[ torch.optim.lr_scheduler.ConstantLR(optimizer, factor=1, total_iters=int((int(command_train.__len__()/train_batch_size)+1)*train_epochs*0.4)),
                                                                  torch.optim.lr_scheduler.PolynomialLR(optimizer, total_iters=int((int(command_train.__len__()/train_batch_size)+1)*train_epochs*0.6), power=2.0, last_epoch=- 1, verbose=False)],
                                                     milestones=[int((int(command_train.__len__()/train_batch_size)+1)*train_epochs*0.4)])
-    buffer=ClassBalancedBuffer(max_size=20000,adaptive_size=True)
-    plugin_list=[]#LRSchedulerPlugin(scheduler=scheduler,step_granularity="iteration"),
-                #EKFAC_Plugin(network=model)]    
+    buffer_policy=ClassBalancedBuffer(max_size=20000,adaptive_size=True)
+    plugin_list=[ReplayPlugin(20000,storage_policy=buffer_policy),EKFAC_Plugin(network=model)]#LRSchedulerPlugin(scheduler=scheduler,step_granularity="iteration"),
+      
         
     """
       Choose the continual learning startegy.
@@ -189,14 +190,14 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
         River Template      : RiverTemplate(deep_model=model,online_model=HTtoRIVER(classifier=IncrementalRandomForest(size=10, num_workers=15, att_split_est=True)),criterion=None,input_size=128,train_mb_size=train_batch_size,eval_mb_size=eval_batch_size,device=device,evaluator=EvaluationPlugin(loggers=[interactive_logger, text_logger, tb_logger]))
     """
 
-    #TODO add MIR with natural gradient decent 
-    cl_strategy= JointTraining(model, optimizer,CrossEntropyLoss(), train_mb_size=train_batch_size, eval_mb_size=eval_batch_size,device=device,train_epochs=train_epochs,evaluator=eval_plugin,plugins=plugin_list)
+
+    cl_strategy= Supervised_SS_Template(model, optimizer,CrossEntropyLoss(), train_mb_size=train_batch_size, eval_mb_size=eval_batch_size,device=device,train_epochs=train_epochs,evaluator=eval_plugin,plugins=plugin_list)
     
     #Training loop
     logging.info('Starting experiment...')
     results = []
 
-    # Check if the user requested Joint training, Online training, or regular Supervised Template
+    # Check if the user requested Joint training or regular Supervised Template
     if isinstance(cl_strategy,JointTraining):
         logging.info("Start of joint training: ")
         res = cl_strategy.train(scenario.train_stream)
@@ -216,10 +217,14 @@ def run(device,opt_type,learning_rate,train_batch_size,eval_batch_size,train_epo
             logging.info('Training completed')
 
             # eval 
-            logging.info('Start of Eval')
-            results.append(cl_strategy.eval(scenario.test_stream))
-            logging.info('End of Eval')
+            #logging.info('Start of Eval')
+            #results.append(cl_strategy.eval(scenario.test_stream))
+            #logging.info('End of Eval')
 
+    #TODO comment those next three lines and uncomment the previous ones if you're not using the separated softmax trick
+    logging.info('Start of Eval')
+    results.append(cl_strategy.eval(scenario.test_stream))
+    logging.info('End of Eval')
 
     # Logging metrics and artifacts into sacred
 

@@ -9,7 +9,7 @@ class EKFAC_Plugin(BaseSGDPlugin):
 
         Args:
             network (nn.Module): The model to train
-            eps (float, optional): Tikhonov regularization parameter. Defaults to 0.1.
+            eps (float): Tikhonov regularization parameter. Defaults to 0.1.
         """
         super().__init__()
         self.preconditioner = EKFAC(network,eps,ra=True)
@@ -23,7 +23,7 @@ class KFAC_Plugin(BaseSGDPlugin):
 
         Args:
             network (nn.Module): The model to train
-            eps (float, optional): Tikhonov regularization parameter. Defaults to 0.1.
+            eps (float): Tikhonov regularization parameter. Defaults to 0.1.
         """
         super().__init__()
         self.preconditioner = KFAC(network,eps)

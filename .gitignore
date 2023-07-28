@@ -2,10 +2,11 @@
 tb_data/
 dataset/MLCommons/subset1/
 dataset/MLCommons/subset2/
-dataset/SpeechCommands/
+dataset/SpeechCommands/MaleCommands
+dataset/SpeechCommands/speech_commands_v0.02
+dataset/SpeechCommands/FemaleCommands
 dataset/speech_commands_v0.02.tar.gz
 dataset_cache/
-/models/
 src/pre_transform_analysis/models/pytorch_model.bin
 src/__pycache__/
 src/matchbox/__pycache__/
