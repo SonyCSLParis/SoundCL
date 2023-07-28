@@ -4,7 +4,7 @@ This repository creates a basis upon wich one can try out continual learning str
 
 ## The Dataset
 
-The [Google Speech Command Dataset](http://arxiv.org/abs/1804.03209) is composed of 35 classes of 1 second sound utturences. This dataset regroups words usefull for robotics commands, and other words such as numbers and names.
+The [Google Speech Command Dataset](http://arxiv.org/abs/1804.03209) is composed of 35 classes of 1 second sound utturences. This dataset regroups words useful for robotics commands, and other words such as numbers and names.
 
 ## The framework
 
@@ -29,4 +29,4 @@ To run your experiment:
 
 ## Additionnal web tools
 
-The `/web` directory contains two [Flask](https://flask.palletsprojects.com/en/2.3.x/) apps usefull for creating a dataset and testing models on a website. For more info please refer to the `/web/README.md` file.
+The `/web` directory contains two [Flask](https://flask.palletsprojects.com/en/2.3.x/) apps useful for creating a dataset and testing models on a website. For more info please refer to the `/web/README.md` file.
