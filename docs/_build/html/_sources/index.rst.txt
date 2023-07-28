@@ -25,7 +25,6 @@ Head to the getting started section for a quick overview of the used libraries a
    :caption: Contents:
 
    modules
-   web
 
 
 Indices and tables
